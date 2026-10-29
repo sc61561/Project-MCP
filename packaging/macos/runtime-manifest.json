@@ -1,0 +1,11 @@
+{
+  "runtime": "tunnel-client-runtime-cloudflared",
+  "version": "v0.0.14",
+  "platform": "darwin-arm64",
+  "sha256": "d0dec33d8937e2a37414a454144ba20d327fa731ccd53c324e3ece06bbd3d719",
+  "original_artifact": "tunnel-client-runtime-cloudflared-v0.0.14-darwin-arm64.zip",
+  "source": "https://github.com/openai/tunnel-client",
+  "license": "Apache-2.0; included dependency report and upstream NOTICE",
+  "verification": "local binary matches original downloaded runtime; public-release provenance review pending",
+  "public_distribution_approved": false
+}

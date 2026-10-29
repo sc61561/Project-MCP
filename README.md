@@ -4,6 +4,12 @@
 
 只提供三个工具：列目录、读文本、全文搜索。支持分页，无数据库、Embedding 或 Web UI。
 
+## macOS 桌面启动器（测试版）
+
+新增原生毛玻璃极简窗口：选择项目、查看状态、一键启动/停止；连接配置和诊断收进设置。应用内置 Python 和 Tunnel，使用方式及构建步骤见 [macOS 软件说明](docs/macos-app.md)。
+
+首版目标为 Apple Silicon / macOS 15+，目前提供本地测试包；Apple 签名公证、公开分发的 runtime 来源复核和无 Python 新机器验收仍是正式发布前的门槛。现有 CLI 用法继续有效。
+
 ## 快速开始
 
 需要 Python 3.10+。以下终端示例适用于 macOS / Linux 的 zsh 或 bash。
