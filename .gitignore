@@ -1,0 +1,35 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Python environments and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Downloaded tunnel runtimes, logs, and local artifacts
+/tunnel-client
+/tunnel-client.exe
+/tunnel-client-runtime-*
+/cloudflared
+/cloudflared.exe
+*.log
+*.pid
+*.zip
+*.tar.gz
+/.DS_Store
+/Codex 图像 *.png
+/work/
