@@ -1,0 +1,122 @@
+# DeepSeek 接手任务：完成 Project MCP macOS 软件
+
+更新时间：2026-10-30（接手轮完成）。本文件是当前交接的权威入口；其他断点记录和旧测试日志用于追溯。**当前状态：本地测试包已由当前源码重打并通过全部本机验证；正式发行门槛仍未完成（见文末）。**
+
+## 最终目标：不得改变
+
+完成一个 **Apple Silicon / macOS 15+ 可解压双击的原生 `.app` 测试包**：用户不安装 Python、pip、Conda 或 Tunnel 程序，在窗口中选择一个本地项目，配置一次连接信息，点击启动后可由 ChatGPT 的既有 MCP 连接读取该项目。
+
+UI 已由用户明确指定：**毛玻璃、极简、只保留核心内容，不能加多余的二级文字介绍**。
+
+- 主窗口：`Project MCP` 小标题、设置图标、项目选择行、一个状态标识、一个启动/停止按钮。
+- 连接字段、密钥记忆开关、ChatGPT/官方入口、帮助和折叠日志都在设置 sheet 内。
+- 不加副标题、功能介绍、helper text、统计卡片、侧边栏、欢迎页、装饰渐变或炫光动画。
+- 浅色/深色、减少透明度模式均可读；窗口退出处理不能依赖视觉材质。
+
+**在当前代码上续做，不重写，不换 Electron/Tauri/网页管理后台，不退回只提供脚本或教程。** 保留现有 SwiftUI + Swift supervisor + 冻结 Python/FastMCP 的方案。不要因文档标题仍写“规划”就等待重批：用户已明确说“开始实现”，现在指定由 DeepSeek 完成。
+
+## 必须保留的边界
+
+- MCP 仍且仅有 `list_files`、`read_file`、`search_files` 三个只读工具；不增加写入、删除、移动、Shell 或桌面控制 MCP 工具。
+- 维持 `PROJECT_ROOT`、根目录边界、符号链接拒绝、分页、512 KiB 工具 JSON 保护、1 MiB 文本文件上限。
+- GUI 可以保存自己的设置和管理自己拥有的进程，但不能读用户真实 Key、旧进程环境或 Shell 历史来自动填配置。
+- Key 默认会话内存，用户明确勾选才进 Keychain；不写明文 `.env`，不进入配置 Codable/argv/控制 JSON/日志。
+- 不停止现有终端 Tunnel，不删除旧目录；禁止全局 `pkill python/tunnel-client` 等操作。
+- 本轮没有远端推送、公证、GitHub Release 发布授权。允许本地继续开发、构建、测试；正式发布需另行完成条件和授权。
+
+## 必须在同一个本地工作目录接手
+
+仓库：`/Users/chen/Documents/ChatGPT/MCP server`。
+当前分支：`feat/macos-launcher`；基线：`ea30549`。用户要求将当前进度保存为本地 WIP 断点提交，具体提交号以 `git log -1` 为准；这不是测试全部通过的发布提交。
+
+**新实现仅在本地功能分支保存，尚未推送；GitHub 的 main 只有之前的 CLI Server。不要只 clone 远端后误以为没有实现；必须先打开这个本地目录。不要 reset/clean/覆盖当前工作树。**
+
+先读：
+
+1. `AGENTS.md`。
+2. `docs/superpowers/specs/2026-10-30-macos-launcher-design.md`。
+3. `docs/superpowers/plans/2026-10-30-macos-launcher.md`。
+4. 本文“当前阻塞”和 `work/macos-launcher-progress.md`。
+
+## 已有实现，不要重复搭建
+
+- `desktop/macos/Package.swift`：Swift 核心、UI、supervisor 和测试 target。
+- `Sources/ProjectMCPCore/`：设置、Keychain、脱敏日志、启动配置、进程管理、健康检查、生命周期状态机及新增 `LauncherLock.swift`。
+- `Sources/ProjectMCPSupervisor/main.swift`：无 shell 的子进程组启动；控制管道 EOF / 终止信号触发回收；仅操作本组。上述 Sources/ 路径均相对于 `desktop/macos/`。
+- `Sources/ProjectMCPApp/`：毛玻璃主窗口、设置 sheet、AppController、正常退出确认；已经实际打开检查。
+- `packaging/macos/server.spec`：已实际生成约 60 MiB 的冻结 Server，修复了 docket Lua 和 burner_redis 动态导入。
+- `packaging/macos/requirements-lock.txt`：干净构建环境的依赖锁；Python 3.12.2、FastMCP 2.14.7、PyInstaller 6.22.3。
+- `scripts/build-macos.sh`、`verify-macos.sh`、`package-licenses.py`：打包、本地 ad-hoc 签名、架构/资源/私钥检查和许可收集。
+- `docs/macos-app.md`：软件使用与构建说明；README 与 AGENTS 已加桌面入口。
+- `pytest.ini` 限定项目测试目录，避免收集忽略目录 work/ 内第三方测试。
+
+## 本轮验证结果（2026-10-30 接手轮）
+
+- 停止死锁修复：supervisor 继承调用线程被阻塞/忽略的 SIGTERM，`kill(SIGTERM)` 永久挂起；`ProcessRunner` 改用 `posix_spawn` + `waitpid`（仍无 shell、控制/输出协议不变），spawn 时以 `POSIX_SPAWN_SETSIGMASK`/`SETSIGDEF` 重置信号掩码与 TERM/INT/HUP/PIPE 处置；新增 `testSupervisorEscapesBlockedSignalMaskOfLaunchingThread`。
+- 崩溃修复：`AppControllerTests.testWindowCloseDelegateInstallsWithoutGlassBackground` 的 SIGSEGV 根因是程序创建的 `NSWindow` 默认 `isReleasedWhenClosed = true`，在 ARC/SwiftUI 持有窗口时关闭会过度释放（崩溃栈为 `objc_release` / `objc_autoreleasePoolPop`）。`WindowBehaviorView.configureWindow()` 现固定 `isReleasedWhenClosed = false`，测试同步断言该不变量，删除该测试会让回归重新出现。
+- Swift 完整套件：`swift test --package-path desktop/macos` → **31 tests / 0 failures，连续 3 次全绿**（`work/final-swift-tests.log`），含 UI 控制器、锁竞争、设置草稿、减少透明度关闭、supervisor 生命周期与健康检查。
+- Python 套件：源码 25 项 + 冻结 Server 协议 1 项 + 包内 supervisor 预检 1 项 → **27 passed**（`work/final-python-tests.log`），运行命令设置了 `PROJECT_MCP_APP_BUNDLE` 与 `PROJECT_MCP_FROZEN_SERVER`，不是 skip。
+- 包校验：`scripts/build-macos.sh --test-package` 重新生成 App 与 ZIP，`scripts/verify-macos.sh 'dist/Project MCP.app'` 通过；对 ZIP 解压后的副本再次执行校验也通过；包内文本资源无个人绝对路径、无 `.env`/私钥。
+- 产物：`dist/Project MCP.app`（arm64、ad-hoc 签名、LSMinimumSystemVersion 15.0、版本 0.2.0/2）、`dist/Project-MCP-macOS-arm64-test.zip`（约 40 MiB）及 `.sha256`。旧 ZIP 已被新构建替换，不得再引用旧哈希。
+- UI：实际启动最终 App，核对设置 sheet（三个字段 + 记住密钥 + 折叠诊断 + 入口/保存/关闭）与主窗口（标题、设置图标、项目行、状态、启动按钮）；均为毛玻璃极简样式，无副标题或常驻说明文字。
+- 环境与进程：构建使用 `work/build-env`（Python 3.12.2 / FastMCP 2.14.7 / PyInstaller 6.22.3）；原终端 Tunnel（检查时 PID 93217）未停止、未修改，测试 App 实例已正常退出。
+
+## 仍未完成（正式发行门槛，保持未勾选）
+
+1. 真实凭据下的 Tunnel 端到端启动与 ChatGPT 调用验证：需用户自行填写 API Key、Tunnel ID、组织 ID 并授权；本轮未触碰任何真实凭据。
+2. 无 Python 干净 Apple Silicon 机器的下载、检疫、安装、启动与退出回收验收。
+3. Developer ID 签名、公证、stapling 与 `spctl` 验收（本机无可用证书身份；当前包仅为 ad-hoc 测试包）。
+4. GitHub Release 上传与正式下载交付（本轮无授权）。
+
+## 续做命令
+
+先检查分支和未提交文件：
+
+```bash
+cd "/Users/chen/Documents/ChatGPT/MCP server"
+git status --short --branch
+```
+
+调试并跑当前完整 Swift 套件：
+
+```bash
+swift test --package-path desktop/macos \
+  --scratch-path work/swift-release --cache-path work/swift-cache
+```
+
+本机 sandbox 可能阻挡 Xcode 缓存、进程枚举或本地网络测试；需要时正常申请工具权限，不弱化测试。还有 `/tmp/project-mcp-swift-build` 这一套旧构建缓存和日志，不要将两套日志混为同一结果。
+
+Swift 全部通过后重新打包并验证当前包：
+
+```bash
+bash scripts/build-macos.sh --test-package
+PROJECT_MCP_APP_BUNDLE='dist/Project MCP.app' \
+PROJECT_MCP_FROZEN_SERVER='dist/Project MCP.app/Contents/Resources/server/project-mcp-server' \
+  work/build-env/bin/python -m pytest -q
+bash scripts/verify-macos.sh 'dist/Project MCP.app'
+```
+
+完整 Python 测试预计为原 25 项 + 两项包验证；以实际输出为准。未设这两个环境变量时两项是 skip，不能称包验证通过。
+
+## 接手时的进程与文件注意事项
+
+- 本轮参与的实现/审查 Agent 均已停止；不应再有 Agent 继续改代码。
+- 交接检查时旧终端 Tunnel PID 为 93217，必须保留，PID 可能变化，应以实际来源辨别，不能依据此旧 PID 直接执行任何信号操作。
+- 自建测试 App 可能仍开着首次配置窗口；尚未配置密钥。测试进程 12018 已核对为本任务 XCTest 后发送 SIGTERM，避免遗留构建锁；接手重新检查实际状态，不按旧 PID 误杀。
+- 未删临时库、旧安装包 stage 或旧源码；保留用于复核。
+- 发布时不要提交 `work/`、`build/`、`dist/`、虚拟环境或二进制。本文含本机路径和临时 PID，适合本地交接，不应未经整理直接公开上传。
+
+## 完成标准：全部满足才说测试版完成
+
+- 当前源码的 Python、冻结协议、Swift 完整套件均有本轮成功输出；无未解释的失败、signal 11 或被掩盖 skip。
+- 多开互斥、设置草稿、减少透明度下窗口关闭、退出取消/确认、GUI 进程退出后的 supervisor 回收均已验证，原终端连接不受影响。
+- 最新源码重打 ZIP，与 App 对应；签名/包结构/arm64 检查通过，并给出 SHA256。
+- 实际打开最终 App 检查极简 UI，错误仅保留必要一句和动作；不因为“帮助完整”把说明搬回主界面。
+- 正常用户只需打开 App、填自己的连接信息、选目录、启动；端到端真实 ChatGPT 测试需用户自行输入 Key 和完成首次授权，不能从旧环境偷取凭据。
+- 更新 README、软件说明、计划勾选状态和执行记录，清楚区分“已实现”“已测试”“待正式分发”。
+
+## 正式发行尚未授权或验证
+
+无 Developer ID / Apple 公证凭证，未完成无 Python 新机器下载/检疫验收；runtime 的原下载一致性已验证，但独立公开来源复核仍 pending，manifest 中 `public_distribution_approved=false` 必须保留到真实审核完成。
+
+可以交付明确标注未公证的本地测试包；不能声称所有 Mac 默认安全设置下无提示即用。不要请求聊天中发送私钥、不要全局关闭 Gatekeeper，也不要未经用户指令推送共享分支或创建 GitHub Release。

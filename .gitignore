@@ -30,6 +30,10 @@ dist/
 *.pid
 *.zip
 *.tar.gz
-/.DS_Store
+.DS_Store
 /Codex 图像 *.png
 /work/
+.build/
+.swiftpm/
+.superpowers/
+/packaging/macos/vendor/

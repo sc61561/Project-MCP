@@ -4,6 +4,12 @@
 
 只提供三个工具：列目录、读文本、全文搜索。支持分页，无数据库、Embedding 或 Web UI。
 
+## macOS 桌面启动器（测试版）
+
+新增原生毛玻璃极简窗口：选择项目、查看状态、一键启动/停止；连接配置和诊断收进设置。应用内置 Python 和 Tunnel，使用方式及构建步骤见 [macOS 软件说明](docs/macos-app.md)。
+
+首版目标为 Apple Silicon / macOS 15+。窗口关闭崩溃与 supervisor 停止死锁已修复；窗口拖动的实际使用体验仍需验证。Apple 签名公证、公开分发的 runtime 来源复核和无 Python 新机器验收仍是正式发布前的门槛。现有 CLI 用法继续有效。
+
 ## 快速开始
 
 需要 Python 3.10+。以下终端示例适用于 macOS / Linux 的 zsh 或 bash。
@@ -148,4 +154,4 @@ python -m py_compile server.py
 
 本仓库根目录的 `server.py` 是维护入口，`tests/` 保存回归测试，`AGENTS.md` 记录协作约定。`requirements.txt` 保持 FastMCP 2.x，不自动跨主版本升级。
 
-下载的 `tunnel-client` / `cloudflared`、本地 `.env`、缓存、日志和原始图稿不入库。仓库可保留小尺寸 `project_mcp_icon_256.png` 作为插件图标。
+下载的 `tunnel-client` / `cloudflared`、本地 `.env`、缓存、日志和原始图稿不入库。`project_mcp_icon.png` 是随仓库维护的应用图标源（1024²、透明背景），`project_mcp_icon_256.png` 继续作为小尺寸插件图标。
