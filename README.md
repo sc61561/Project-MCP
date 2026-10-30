@@ -1,5 +1,9 @@
 # Project MCP
 
+## [⬇️ 下载 macOS 版 Project MCP 0.2.1](https://github.com/sc61561/Project-MCP/releases/tag/v0.2.1)
+
+**预发布测试版** · Apple Silicon（M 系列）· macOS 15 或更高版本。安装包尚未经过 Apple 公证；使用和首次配置请参阅 [macOS 软件说明](docs/macos-app.md)。
+
 用 Python + FastMCP，让 ChatGPT 只读访问一个本地项目文件夹。通过 `PROJECT_ROOT` 选择目录，使用 STDIO 在本地运行，可通过 OpenAI Secure MCP Tunnel 连接 ChatGPT。
 
 只提供三个工具：列目录、读文本、全文搜索。支持分页，无数据库、Embedding 或 Web UI。
