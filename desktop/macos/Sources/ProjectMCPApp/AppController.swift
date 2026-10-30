@@ -59,10 +59,27 @@ final class AppController: ObservableObject {
         do {
             if let saved = try settingsStore.load() {
                 settings = saved
-                if saved.rememberKey { apiKey = try credentialStore.read() ?? "" }
+                if saved.rememberKey {
+                    // Keychain access may show an authorization prompt; read it off
+                    // the main thread so the window stays responsive and sized.
+                    let store = credentialStore
+                    Task.detached { [weak self] in
+                        let key = try? store.read()
+                        await MainActor.run {
+                            guard let self else { return }
+                            if let key { self.apiKey = key }
+                            self.presentSettingsIfNeeded()
+                        }
+                    }
+                    return
+                }
             }
-            if settings.tunnelID.isEmpty || settings.organizationID.isEmpty || apiKey.isEmpty { showSettings = true }
+            presentSettingsIfNeeded()
         } catch { errorMessage = error.localizedDescription; showSettings = true }
+    }
+
+    private func presentSettingsIfNeeded() {
+        if settings.tunnelID.isEmpty || settings.organizationID.isEmpty || apiKey.isEmpty { showSettings = true }
     }
 
     func chooseProject() {

@@ -6,6 +6,10 @@ struct MainView: View {
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    /// macOS 26+ controls opt into native Liquid Glass; earlier systems and the
+    /// reduce-transparency setting keep the existing frosted styling.
+    private var glassControls: Bool { !reduceTransparency && LiquidGlassSupport.isAvailable }
+
     var body: some View {
         VStack(spacing: 28) {
             HStack {
@@ -14,7 +18,10 @@ struct MainView: View {
                 Button { app.showSettings = true } label: {
                     Image(systemName: "slider.horizontal.3").font(.system(size: 16))
                         .frame(width: 28, height: 28)
-                }.buttonStyle(.plain).help("设置").accessibilityLabel("设置")
+                }
+                .buttonStyle(.plain)
+                .liquidGlassButton(available: glassControls, prominent: false)
+                .help("设置").accessibilityLabel("设置")
             }
 
             Button { app.chooseProject() } label: {
@@ -27,10 +34,17 @@ struct MainView: View {
                     Image(systemName: "chevron.up.chevron.down")
                         .font(.system(size: 10, weight: .semibold)).foregroundStyle(.secondary)
                 }.padding(17).frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.primary.opacity(0.035), in: RoundedRectangle(cornerRadius: 15))
-                    .overlay(RoundedRectangle(cornerRadius: 15).strokeBorder(.primary.opacity(0.07)))
+                    .background {
+                        if !glassControls { RoundedRectangle(cornerRadius: 15).fill(.primary.opacity(0.035)) }
+                    }
+                    .overlay {
+                        if !glassControls { RoundedRectangle(cornerRadius: 15).strokeBorder(.primary.opacity(0.07)) }
+                    }
                     .contentShape(RoundedRectangle(cornerRadius: 15))
-            }.buttonStyle(.plain).disabled(app.isRunning)
+            }
+            .buttonStyle(.plain)
+            .liquidGlass(available: glassControls, interactive: !reduceMotion, in: RoundedRectangle(cornerRadius: 15))
+            .disabled(app.isRunning)
                 .help(app.settings.projectPath.isEmpty ? "选择项目" : app.settings.projectPath)
                 .accessibilityLabel(app.settings.projectPath.isEmpty ? "选择项目" : app.settings.projectPath)
 
@@ -53,10 +67,18 @@ struct MainView: View {
                     if app.isBusy { ProgressView().controlSize(.small) }
                     Text(app.isRunning ? "停止" : "启动").font(.system(size: 14, weight: .semibold))
                 }.frame(maxWidth: .infinity).frame(height: 44)
-                    .background(.primary.opacity(0.1), in: RoundedRectangle(cornerRadius: 13))
-                    .overlay(RoundedRectangle(cornerRadius: 13).strokeBorder(.primary.opacity(0.07)))
+                    .background {
+                        if !glassControls { RoundedRectangle(cornerRadius: 13).fill(.primary.opacity(0.1)) }
+                    }
+                    .overlay {
+                        if !glassControls { RoundedRectangle(cornerRadius: 13).strokeBorder(.primary.opacity(0.07)) }
+                    }
                     .contentShape(RoundedRectangle(cornerRadius: 13))
-            }.buttonStyle(.plain).disabled(app.isBusy).keyboardShortcut(.return, modifiers: [])
+            }
+            .buttonStyle(.plain)
+            .liquidGlassButton(available: glassControls, prominent: false)
+            .disabled(app.isBusy)
+            .keyboardShortcut(.return, modifiers: [])
         }
         .padding(28).padding(.top, 12).frame(width: 440)
         .background {
