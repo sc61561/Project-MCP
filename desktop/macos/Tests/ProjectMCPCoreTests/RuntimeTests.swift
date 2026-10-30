@@ -1,4 +1,5 @@
 import XCTest
+import Foundation
 import Darwin
 @testable import ProjectMCPCore
 
@@ -143,6 +144,35 @@ final class SupervisorTests: XCTestCase {
             await run.waitForExit()
             try await assertEventuallyDead(pids)
         }
+    }
+
+    func testSupervisorEscapesBlockedSignalMaskOfLaunchingThread() async throws {
+        let fixture = try RuntimeFixture()
+        defer { fixture.remove() }
+        let runner = ProcessRunner(supervisorURL: fixture.supervisorURL)
+        // A blocked SIGTERM on the calling thread must not be inherited by the
+        // supervisor, otherwise the signal stays pending and the stop hangs.
+        let run = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<OwnedRun, Error>) in
+            DispatchQueue.global(qos: .utility).async {
+                var blocked = sigset_t()
+                sigemptyset(&blocked)
+                sigaddset(&blocked, SIGTERM)
+                var previous = sigset_t()
+                pthread_sigmask(SIG_BLOCK, &blocked, &previous)
+                defer { pthread_sigmask(SIG_SETMASK, &previous, nil) }
+                do { continuation.resume(returning: try runner.launch(fixture.configuration(), apiKey: "fake-key")) }
+                catch { continuation.resume(throwing: error) }
+            }
+        }
+        let pids = try await fixture.waitForPIDs(run: run)
+        kill(run.pid, SIGTERM)
+        for _ in 0..<100 {
+            if run.exitResult != nil { break }
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        XCTAssertEqual(run.exitResult, 0)
+        if run.exitResult == nil { run.closeControl(); await run.waitForExit() }
+        try await assertEventuallyDead(pids)
     }
 
     func testNormalLeaderExitStillCleansChildAndLogsCannotForgeEvents() async throws {

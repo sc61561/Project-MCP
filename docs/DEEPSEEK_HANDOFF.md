@@ -1,6 +1,6 @@
 # DeepSeek 接手任务：完成 Project MCP macOS 软件
 
-更新时间：2026-10-30。本文件是当前交接的权威入口；其他断点记录和旧测试日志用于追溯，不能覆盖这里的未完成状态。
+更新时间：2026-10-30（接手轮完成）。本文件是当前交接的权威入口；其他断点记录和旧测试日志用于追溯。**当前状态：本地测试包已由当前源码重打并通过全部本机验证；正式发行门槛仍未完成（见文末）。**
 
 ## 最终目标：不得改变
 
@@ -50,34 +50,23 @@ UI 已由用户明确指定：**毛玻璃、极简、只保留核心内容，不
 - `docs/macos-app.md`：软件使用与构建说明；README 与 AGENTS 已加桌面入口。
 - `pytest.ini` 限定项目测试目录，避免收集忽略目录 work/ 内第三方测试。
 
-## 已有验证与现有安装包的真实含义
+## 本轮验证结果（2026-10-30 接手轮）
 
-- 原有 Python 25 项 + 真实冻结 Server MCP 协议测试：26 项通过，`work/python-tests.log`。
-- 包内冻结 Server + 实际 Swift supervisor 的无凭据预检：2 项通过，`work/app-protocol-tests.log`。
-- 实际 UI 验证：设置 sheet、极简主界面、系统目录选择器及取消操作可用；没有填真实凭据或启动真实连接。
-- 已有 `dist/Project MCP.app` 和约 40 MiB `dist/Project-MCP-macOS-arm64-test.zip`，以及 `.sha256`，曾通过 ad-hoc 签名与包结构检查。
-- **这些产物早于最后几次源码修复，不能作为当前最终版本交付，必须重打。**
-- 最新源码 release 编译成功的记录：`/tmp/project-mcp-swift-release-final.log`。这不代表测试套件通过。
+- 停止死锁修复：supervisor 继承调用线程被阻塞/忽略的 SIGTERM，`kill(SIGTERM)` 永久挂起；`ProcessRunner` 改用 `posix_spawn` + `waitpid`（仍无 shell、控制/输出协议不变），spawn 时以 `POSIX_SPAWN_SETSIGMASK`/`SETSIGDEF` 重置信号掩码与 TERM/INT/HUP/PIPE 处置；新增 `testSupervisorEscapesBlockedSignalMaskOfLaunchingThread`。
+- 崩溃修复：`AppControllerTests.testWindowCloseDelegateInstallsWithoutGlassBackground` 的 SIGSEGV 根因是程序创建的 `NSWindow` 默认 `isReleasedWhenClosed = true`，在 ARC/SwiftUI 持有窗口时关闭会过度释放（崩溃栈为 `objc_release` / `objc_autoreleasePoolPop`）。`WindowBehaviorView.configureWindow()` 现固定 `isReleasedWhenClosed = false`，测试同步断言该不变量，删除该测试会让回归重新出现。
+- Swift 完整套件：`swift test --package-path desktop/macos` → **31 tests / 0 failures，连续 3 次全绿**（`work/final-swift-tests.log`），含 UI 控制器、锁竞争、设置草稿、减少透明度关闭、supervisor 生命周期与健康检查。
+- Python 套件：源码 25 项 + 冻结 Server 协议 1 项 + 包内 supervisor 预检 1 项 → **27 passed**（`work/final-python-tests.log`），运行命令设置了 `PROJECT_MCP_APP_BUNDLE` 与 `PROJECT_MCP_FROZEN_SERVER`，不是 skip。
+- 包校验：`scripts/build-macos.sh --test-package` 重新生成 App 与 ZIP，`scripts/verify-macos.sh 'dist/Project MCP.app'` 通过；对 ZIP 解压后的副本再次执行校验也通过；包内文本资源无个人绝对路径、无 `.env`/私钥。
+- 产物：`dist/Project MCP.app`（arm64、ad-hoc 签名、LSMinimumSystemVersion 15.0、版本 0.2.0/2）、`dist/Project-MCP-macOS-arm64-test.zip`（约 40 MiB）及 `.sha256`。旧 ZIP 已被新构建替换，不得再引用旧哈希。
+- UI：实际启动最终 App，核对设置 sheet（三个字段 + 记住密钥 + 折叠诊断 + 入口/保存/关闭）与主窗口（标题、设置图标、项目行、状态、启动按钮）；均为毛玻璃极简样式，无副标题或常驻说明文字。
+- 环境与进程：构建使用 `work/build-env`（Python 3.12.2 / FastMCP 2.14.7 / PyInstaller 6.22.3）；原终端 Tunnel（检查时 PID 93217）未停止、未修改，测试 App 实例已正常退出。
 
-## 当前阻塞：先解决它们，再交付
+## 仍未完成（正式发行门槛，保持未勾选）
 
-### 1. 最新完整 Swift 套件在原生窗口回归测试处 SIGSEGV
-
-最新日志：`/tmp/project-mcp-swift-final-tests.log`。明确结果是 `Exited with unexpected signal code 11`，进入 `AppControllerTests.testWindowCloseDelegateInstallsWithoutGlassBackground` 时中断。
-
-此前五项 UI 控制器测试（含草稿保存失败）在该次运行中已通过；但进程崩溃，后续核心测试未完成，**不能写成“全部通过”**。先定位测试里的 NSWindow 创建/关闭/ARC 生命周期和真实关闭委托行为；例如检查 `isReleasedWhenClosed` 与测试持有方式，但这只是排查线索，不是已确认根因。不能仅删除该测试来通过门禁。
-
-### 2. 审查提出三项 Important，均有代码改动，但还没有统一的最终 GREEN
-
-1. **跨进程互斥**：原先只有进程列表快照，两个 App 可同时启动同一 Tunnel。现在有 `LauncherLock.swift`（每用户稳定 lock inode，flock、O_NOFOLLOW/O_CLOEXEC、权限/owner 检查），RuntimeController 已接入 acquire/release。`LauncherLockTests.swift` 和 competing-controller 测试已添加；须重新验证锁竞争、失败/正常 stop 释放和进程退出释放，不能 unlink 仍作为共享锁的 inode。
-2. **设置草稿事务**：原先 settings sheet 直绑已提交状态，项目选择可偷偷持久化未成功的记住密钥偏好。现在设置页有独立 draft/draftKey，`saveSettings(candidate:key:)` 在凭据操作成功后更新已提交状态；项目选择仅更新项目。新增测试在最近完整运行中通过，仍需整体回归。
-3. **减少透明度下关闭确认**：原先委托仅由玻璃背景安装。现已拆出与材质无关的 `WindowBehaviorView`；新增测试就是当前 SIGSEGV 的位置，需确认测试本身与产品行为都正确。
-
-### 3. 先前的健康超时不能直接当作仍然存在，也不能当作已彻底解决
-
-`work/swift-tests.log` 是较早一轮，21 tests / 5 failures，RuntimeController ready 超时；另有较后 focused core 17 项通过的 `/tmp/project-mcp-core-green.log`，以及更后完整运行曾显示 readiness/stop/retry 用例通过。
-
-旧日志、并行构建和源文件修复的时间不同，唯一正确做法是：修完窗口测试后，以当前源码重新完整跑一遍。不要从旧失败归因 ATS 后盲目关闭全局网络安全；也不要提高 30 秒超时掩盖问题。之前 SIGPIPE 和失败清理/并发 stop 也有新增回归用例，必须保留。
+1. 真实凭据下的 Tunnel 端到端启动与 ChatGPT 调用验证：需用户自行填写 API Key、Tunnel ID、组织 ID 并授权；本轮未触碰任何真实凭据。
+2. 无 Python 干净 Apple Silicon 机器的下载、检疫、安装、启动与退出回收验收。
+3. Developer ID 签名、公证、stapling 与 `spctl` 验收（本机无可用证书身份；当前包仅为 ad-hoc 测试包）。
+4. GitHub Release 上传与正式下载交付（本轮无授权）。
 
 ## 续做命令
 

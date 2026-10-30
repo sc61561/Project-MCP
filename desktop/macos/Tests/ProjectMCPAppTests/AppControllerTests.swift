@@ -91,6 +91,8 @@ import ProjectMCPCore
         let behavior = WindowBehaviorView()
         window.contentView = behavior
         XCTAssertTrue(window.delegate is WindowCloseDelegate)
+        // Programmatic windows default to releasedWhenClosed; under ARC that over-releases on close.
+        XCTAssertFalse(window.isReleasedWhenClosed)
         window.close()
     }
 }

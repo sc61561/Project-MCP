@@ -109,6 +109,9 @@ final class WindowBehaviorView: NSView {
     override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); configureWindow() }
     func configureWindow() {
         guard let window else { return }
+        // Windows created outside Interface Builder default to releasedWhenClosed,
+        // which double-releases under ARC/SwiftUI ownership and crashes on close.
+        window.isReleasedWhenClosed = false
         window.isOpaque = false
         window.backgroundColor = .clear
         window.titlebarAppearsTransparent = true
