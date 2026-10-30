@@ -2,7 +2,7 @@
 
 ## 测试包
 
-本版为 Apple Silicon（M 系列）Mac 的本地测试包，系统要求 macOS 15.0 或更高；已验证的构建机器是 macOS 15.7.7。当前包由 2026-10-30 的源码重新打包：Swift 31 项、Python 27 项测试通过；已修复窗口关闭时的 AppKit 释放回归，以及 supervisor 继承阻塞信号导致的停止死锁。未完成 Apple Developer ID 公证，也未做无 Python 新机器的独立验收，不等同于正式公开发行版。
+本版为 Apple Silicon（M 系列）Mac 的本地测试包，系统要求 macOS 15.0 或更高；已验证的构建机器是 macOS 15.7.7。已修复窗口关闭时的 AppKit 释放回归，以及 supervisor 继承阻塞信号导致的停止死锁；窗口拖动的实际使用体验仍需验证。未完成 Apple Developer ID 公证，也未做无 Python 新机器的独立验收，不等同于正式公开发行版。
 
 解压 `Project-MCP-macOS-arm64-test.zip`，把 `Project MCP.app` 放入应用程序目录后打开。应用内置 Python、FastMCP 和 Tunnel，无需自行安装运行环境。测试包为本地 ad-hoc 签名、未公证，首次打开若出现系统拦截，请用右键“打开”，不要全局关闭 Gatekeeper；下载校验值见同目录 `.sha256` 文件。
 

@@ -38,8 +38,7 @@ minimal, with configuration/logs in settings and no explanatory secondary copy.
 ## macOS launcher status (2026-10-30)
 
 The SwiftUI launcher, supervisor, keychain/logging core, frozen Server and test-package
-scripts are implemented. Current source passes the full Swift suite (31 tests) and the
-Python suite against the packaged app (27 tests); the window-close AppKit release
+scripts are implemented. The window-close AppKit release
 regression and the supervisor stop deadlock are fixed. `dist/` holds locally rebuilt, ad-hoc signed test artifacts only.
 Formal distribution (Developer ID signing, notarization, runtime provenance review and
 a clean-machine no-Python acceptance) remains pending; do not claim a notarized release.

@@ -8,7 +8,7 @@
 
 新增原生毛玻璃极简窗口：选择项目、查看状态、一键启动/停止；连接配置和诊断收进设置。应用内置 Python 和 Tunnel，使用方式及构建步骤见 [macOS 软件说明](docs/macos-app.md)。
 
-首版目标为 Apple Silicon / macOS 15+。2026-10-30 已由当前源码重打本地测试包，并通过 Swift 31 项、Python 27 项测试；窗口关闭崩溃与 supervisor 停止死锁已修复。Apple 签名公证、公开分发的 runtime 来源复核和无 Python 新机器验收仍是正式发布前的门槛。现有 CLI 用法继续有效。
+首版目标为 Apple Silicon / macOS 15+。窗口关闭崩溃与 supervisor 停止死锁已修复；窗口拖动的实际使用体验仍需验证。Apple 签名公证、公开分发的 runtime 来源复核和无 Python 新机器验收仍是正式发布前的门槛。现有 CLI 用法继续有效。
 
 ## 快速开始
 
