@@ -29,16 +29,18 @@ cp "$SWIFT_BIN/ProjectMCPApp" "$SWIFT_BIN/ProjectMCPSupervisor" "$APP/Contents/M
 ditto build/macos/server "$RES/server"
 cp "$RUNTIME" "$RES/runtime/tunnel-client"
 cp packaging/macos/runtime-manifest.json "$RES/runtime/manifest.json"
-cp project_mcp_icon_256.png "$RES/AppIcon.png"
+ICON="$ROOT/project_mcp_icon.png"
+[[ -f "$ICON" ]] || { echo 'Missing app icon source project_mcp_icon.png.' >&2; exit 2; }
+sips -z 512 512 "$ICON" --out "$RES/AppIcon.png" >/dev/null
 cp packaging/macos/licenses/* "$RES/licenses/tunnel-client/"
 "$PYTHON" scripts/package-licenses.py "$RES/licenses/python"
 cp docs/macos-app.md "$RES/README.md"
 ICONSET="$STAGE/AppIcon.iconset"
 mkdir -p "$ICONSET"
 for SIZE in 16 32 128 256 512; do
-  sips -z "$SIZE" "$SIZE" project_mcp_icon_256.png --out "$ICONSET/icon_${SIZE}x${SIZE}.png" >/dev/null
+  sips -z "$SIZE" "$SIZE" "$ICON" --out "$ICONSET/icon_${SIZE}x${SIZE}.png" >/dev/null
   DOUBLE=$((SIZE * 2))
-  sips -z "$DOUBLE" "$DOUBLE" project_mcp_icon_256.png --out "$ICONSET/icon_${SIZE}x${SIZE}@2x.png" >/dev/null
+  sips -z "$DOUBLE" "$DOUBLE" "$ICON" --out "$ICONSET/icon_${SIZE}x${SIZE}@2x.png" >/dev/null
 done
 iconutil -c icns "$ICONSET" -o "$RES/AppIcon.icns"
 codesign --force --deep --sign - "$APP"

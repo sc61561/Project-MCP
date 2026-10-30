@@ -114,7 +114,8 @@ final class WindowBehaviorView: NSView {
         window.isReleasedWhenClosed = false
         window.isOpaque = false
         window.backgroundColor = .clear
-        window.titlebarAppearsTransparent = true
+        window.styleMask.remove(.fullSizeContentView)
+        window.titlebarAppearsTransparent = false
         window.titleVisibility = .hidden
         window.isMovableByWindowBackground = true
         window.delegate = WindowCloseDelegate.shared

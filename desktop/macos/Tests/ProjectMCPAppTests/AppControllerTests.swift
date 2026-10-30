@@ -95,6 +95,16 @@ import ProjectMCPCore
         XCTAssertFalse(window.isReleasedWhenClosed)
         window.close()
     }
+
+    func testWindowRetainsNativeDraggableTitleBar() async {
+        _ = NSApplication.shared
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 440, height: 300), styleMask: [.titled, .closable, .fullSizeContentView], backing: .buffered, defer: false)
+        window.contentView = WindowBehaviorView()
+        XCTAssertTrue(window.isMovable)
+        XCTAssertFalse(window.styleMask.contains(.fullSizeContentView))
+        XCTAssertFalse(window.titlebarAppearsTransparent)
+        window.close()
+    }
 }
 
 private final class TestCredentials: CredentialBackend {

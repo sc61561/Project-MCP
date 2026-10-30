@@ -154,4 +154,4 @@ python -m py_compile server.py
 
 本仓库根目录的 `server.py` 是维护入口，`tests/` 保存回归测试，`AGENTS.md` 记录协作约定。`requirements.txt` 保持 FastMCP 2.x，不自动跨主版本升级。
 
-下载的 `tunnel-client` / `cloudflared`、本地 `.env`、缓存、日志和原始图稿不入库。仓库可保留小尺寸 `project_mcp_icon_256.png` 作为插件图标。
+下载的 `tunnel-client` / `cloudflared`、本地 `.env`、缓存、日志和原始图稿不入库。`project_mcp_icon.png` 是随仓库维护的应用图标源（1024²、透明背景），`project_mcp_icon_256.png` 继续作为小尺寸插件图标。

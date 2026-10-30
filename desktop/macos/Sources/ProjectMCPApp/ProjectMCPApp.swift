@@ -6,7 +6,6 @@ struct ProjectMCPApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
         WindowGroup { MainView() }
-            .windowStyle(.hiddenTitleBar)
             .windowResizability(.contentSize)
             .commands { CommandGroup(replacing: .newItem) {} }
     }
