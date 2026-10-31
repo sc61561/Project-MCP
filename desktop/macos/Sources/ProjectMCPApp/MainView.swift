@@ -76,7 +76,7 @@ struct MainView: View {
                     .contentShape(RoundedRectangle(cornerRadius: 13))
             }
             .buttonStyle(.plain)
-            .liquidGlassButton(available: glassControls, prominent: false)
+            .liquidGlass(available: glassControls, interactive: !reduceMotion, in: RoundedRectangle(cornerRadius: 13))
             .disabled(app.isBusy)
             .keyboardShortcut(.return, modifiers: [])
         }
