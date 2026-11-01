@@ -14,7 +14,14 @@
   <a href="#命令行快速开始">命令行使用</a>
 </p>
 
-<p align="center">Python 3.10+ · FastMCP 2.x · 本地运行 · 只读</p>
+<p align="center">
+  <a href="https://github.com/sc61561/Project-MCP/releases"><img src="https://img.shields.io/github/v/release/sc61561/Project-MCP?include_prereleases=true&amp;style=flat-square" alt="GitHub release"></a>
+  <a href="https://github.com/sc61561/Project-MCP/stargazers"><img src="https://img.shields.io/github/stars/sc61561/Project-MCP?style=flat-square" alt="GitHub stars"></a>
+  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&amp;logo=python&amp;logoColor=white" alt="Python 3.10 or later">
+  <img src="https://img.shields.io/badge/FastMCP-2.x-7C3AED?style=flat-square" alt="FastMCP 2.x">
+  <img src="https://img.shields.io/badge/macOS-15%2B-555555?style=flat-square&amp;logo=apple&amp;logoColor=white" alt="macOS 15 or later">
+  <img src="https://img.shields.io/badge/MCP-read%20only-2EA44F?style=flat-square" alt="Read-only MCP">
+</p>
 
 ---
 
