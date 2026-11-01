@@ -15,8 +15,21 @@ struct MainView: View {
             HStack(alignment: .center) {
                 Text("Project MCP").font(.system(size: 18, weight: .semibold))
                 Spacer()
+                Link(destination: URL(string: "https://github.com/sc61561/Project-MCP")!) {
+                    if let url = Bundle.main.url(forResource: "github", withExtension: "svg"),
+                       let icon = NSImage(contentsOf: url) {
+                        Image(nsImage: icon).renderingMode(.template).resizable()
+                            .scaledToFit().frame(width: 17, height: 17)
+                            .frame(width: 28, height: 28)
+                    } else {
+                        Image(systemName: "link").frame(width: 28, height: 28)
+                    }
+                }
+                .buttonStyle(.plain)
+                .liquidGlassButton(available: glassControls, prominent: false)
+                .help("GitHub 仓库").accessibilityLabel("GitHub 仓库")
                 Button { app.showSettings = true } label: {
-                    Image(systemName: "slider.horizontal.3").font(.system(size: 16))
+                    Image(systemName: "gearshape").font(.system(size: 16))
                         .frame(width: 28, height: 28)
                 }
                 .buttonStyle(.plain)
@@ -83,6 +96,7 @@ struct MainView: View {
             .keyboardShortcut(.return, modifiers: [])
         }
         .padding(28).padding(.top, 28).frame(width: 440)
+        .hideHomeFocusEffect()
         .background {
             if reduceTransparency { Color(nsColor: .windowBackgroundColor).ignoresSafeArea() }
             else { GlassBackground().ignoresSafeArea() }
@@ -91,6 +105,13 @@ struct MainView: View {
         .sheet(isPresented: $app.showSettings) { SettingsView(app: app) }
         .onAppear { app.restore() }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.15), value: app.isRunning)
+    }
+}
+
+private extension View {
+    @ViewBuilder func hideHomeFocusEffect() -> some View {
+        if #available(macOS 14, *) { self.focusEffectDisabled() }
+        else { self }
     }
 }
 
@@ -109,7 +130,24 @@ private struct GlassBackground: NSViewRepresentable {
 @MainActor
 final class WindowCloseDelegate: NSObject, NSWindowDelegate {
     static let shared = WindowCloseDelegate()
+    private let minimizeOnClose: () -> Bool
+
+    init(minimizeOnClose: @escaping () -> Bool = {
+        UserDefaults.standard.object(forKey: "minimizeOnClose") as? Bool ?? true
+    }) {
+        self.minimizeOnClose = minimizeOnClose
+    }
+
+    @objc func closeButtonPressed(_ button: NSButton) {
+        guard let window = button.window else { return }
+        if windowShouldClose(window) { window.close() }
+    }
+
     func windowShouldClose(_ sender: NSWindow) -> Bool {
+        if minimizeOnClose() {
+            sender.miniaturize(nil)
+            return false
+        }
         guard AppController.shared.isRunning else { return true }
         let alert = NSAlert()
         alert.messageText = "停止连接并关闭？"
@@ -130,6 +168,7 @@ private struct WindowBehavior: NSViewRepresentable {
 }
 
 final class WindowBehaviorView: NSView {
+    var closeHandler = WindowCloseDelegate.shared
     override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); configureWindow() }
     func configureWindow() {
         guard let window else { return }
@@ -142,6 +181,10 @@ final class WindowBehaviorView: NSView {
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
         window.isMovableByWindowBackground = true
-        window.delegate = WindowCloseDelegate.shared
+        window.delegate = closeHandler
+        if let button = window.standardWindowButton(.closeButton) {
+            button.target = closeHandler
+            button.action = #selector(WindowCloseDelegate.closeButtonPressed(_:))
+        }
     }
 }
