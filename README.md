@@ -2,7 +2,7 @@
   <img src="assets/readme-banner.png" alt="Project MCP 连接本地项目与 ChatGPT" width="800">
 </p>
 
-<h1 align="center">Project MCP</h1>
+<!-- <h1 align="center">Project MCP</h1> -->
 
 <p align="center">让 ChatGPT 访问你的本地项目文件，为你的codex省下一大笔额度。</p>
 
