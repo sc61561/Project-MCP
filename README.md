@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="project_mcp_icon.png" alt="Project MCP 图标" width="150">
+  <img src="assets/readme-banner.png" alt="Project MCP 连接本地项目与 ChatGPT" width="800">
 </p>
 
 <h1 align="center">Project MCP</h1>
@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/sc61561/Project-MCP/releases"><img src="https://img.shields.io/github/v/release/sc61561/Project-MCP?include_prereleases=true&amp;style=flat-square" alt="GitHub release"></a>
+  <a href="https://github.com/sc61561/Project-MCP/releases/tag/v0.2.1"><img src="assets/release-badge.svg" alt="GitHub release v0.2.1"></a>
   <a href="https://github.com/sc61561/Project-MCP/stargazers"><img src="https://img.shields.io/github/stars/sc61561/Project-MCP?style=flat-square" alt="GitHub stars"></a>
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&amp;logo=python&amp;logoColor=white" alt="Python 3.10 or later">
   <img src="https://img.shields.io/badge/FastMCP-2.x-7C3AED?style=flat-square" alt="FastMCP 2.x">
