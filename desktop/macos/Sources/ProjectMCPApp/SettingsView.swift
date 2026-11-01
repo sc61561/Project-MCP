@@ -51,6 +51,14 @@ struct SettingsView: View {
                                     Link("获取 API Key", destination: URL(string: "https://platform.openai.com/api-keys")!)
                                     Link("创建 Tunnel", destination: URL(string: "https://platform.openai.com/settings/organization/tunnels")!)
                                 }
+                                Text("在 API Keys 页面选择 Create new secret key，有效期和权限请按需设置。")
+                                if let url = Bundle.main.url(forResource: "api-key-guide", withExtension: "mp4") {
+                                    TutorialVideo(url: url, reduceMotion: reduceMotion)
+                                        .frame(width: 250, height: 232)
+                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                        .accessibilityLabel("创建 API Key 操作视频")
+                                }
+                                Text("创建后请安全保存密钥，视频不显示密钥内容。")
                             }
                             step("2", "配置并启动") {
                                 Text("在上方填写 API Key 和 Tunnel ID，保存后选择项目文件夹并启动。")

@@ -41,7 +41,13 @@ Project MCP 通过 OpenAI Secure MCP Tunnel，将你选择的一个本地项目�
 2. 在 App 的设置中填写连接信息，选择项目文件夹并启动。
 3. 在 ChatGPT 中添加自定义 MCP 插件，选择相同的 Tunnel，再调用工具验证。
 
-本分支的新版本将三步指引放在设置页的 **快速开始** 中。以下是添加插件的操作演示：
+本分支的新版本将三步指引放在设置页的 **快速开始** 中。以下是实际操作演示：
+
+**创建 API Key**：在 API Keys 页面点击 `Create new secret key`，按需选择有效期和权限。为保护密钥，视频截去了创建后的密钥显示画面。
+
+![创建 API Key 操作演示](assets/api-key-guide.gif)
+
+**添加 ChatGPT 插件：**
 
 ![添加 ChatGPT 插件操作演示](assets/chatgpt-plugin-guide.gif)
 

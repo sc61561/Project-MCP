@@ -50,7 +50,7 @@ Run the Swift and Python suites above to verify the current source and packaged 
 Liquid Glass visuals were visually verified on macOS 27.2 (dark and light, main window
 and settings sheet); the user confirmed window dragging works. Reduced-transparency
 still needs a manual check; macOS 15 fallback was verified by screenshot. The three-step
-quick start is in the settings sheet; a local plugin tutorial video is bundled.
+quick start is in the settings sheet; local API Key and plugin tutorial videos are bundled.
 `dist/` holds locally rebuilt, ad-hoc signed test artifacts only. Formal distribution
 (Developer ID signing, notarization, runtime provenance review and a clean-machine
 no-Python acceptance) remains pending; do not claim a notarized release.
