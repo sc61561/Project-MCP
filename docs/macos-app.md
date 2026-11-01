@@ -2,26 +2,27 @@
 
 ## 测试包
 
-本版为 Apple Silicon（M 系列）Mac 的本地测试包，系统要求 macOS 15.0 或更高；已在 macOS 15.7.7（回退界面）与 macOS 27.2（原生 Liquid Glass）实机验证。本版加入 macOS 26 原生 Liquid Glass 条件化支持，并继续提供 macOS 15 的毛玻璃界面。已修复窗口关闭时的 AppKit 释放回归，以及 supervisor 继承阻塞信号导致的停止死锁；窗口拖动的实际使用体验仍需实机确认。未完成 Apple Developer ID 公证，也未做无 Python 新机器的独立验收，不等同于正式公开发行版。
+本版为 Apple Silicon（M 系列）Mac 的本地测试包，系统要求 macOS 15.0 或更高；已在 macOS 15.7.7（回退界面）与 macOS 27.2（原生 Liquid Glass）实机验证。本版加入 macOS 26 原生 Liquid Glass 条件化支持，并继续提供 macOS 15 的毛玻璃界面。已修复窗口关闭时的 AppKit 释放回归，以及 supervisor 继承阻塞信号导致的停止死锁；一体式窗口拖动已在 macOS 27.2 由用户验证。未完成 Apple Developer ID 公证，也未做无 Python 新机器的独立验收，不等同于正式公开发行版。
 
-解压 `Project-MCP-macOS-arm64-test.zip`，把 `Project MCP.app` 放入应用程序目录后打开。应用内置 Python、FastMCP 和 Tunnel，无需自行安装运行环境。测试包为本地 ad-hoc 签名、未公证，首次打开若出现系统拦截，请用右键“打开”，不要全局关闭 Gatekeeper；下载校验值见同目录 `.sha256` 文件。
+解压 `Project-MCP-macOS-arm64-v版本号.zip`，把 `Project MCP.app` 放入应用程序目录后打开。应用内置 Python、FastMCP 和 Tunnel，无需自行安装运行环境。测试包为本地 ad-hoc 签名、未公证，首次打开若出现系统拦截，请用右键“打开”，不要全局关闭 Gatekeeper；下载校验值见同目录 `.sha256` 文件。
 
 ## 外观与系统版本
 
 - macOS 26 及以上：项目选择、启动/停止和设置入口使用系统原生 Liquid Glass 材质与按钮样式；窗口内容区不叠加额外玻璃层，状态文字保持清晰。系统开启“减少透明度”时自动回到可读的不透明背景，不启用玻璃控件。
 - macOS 15：保持原有的 `NSVisualEffectView` 毛玻璃背景和自定义按钮样式，布局、文案、快捷键和无障碍标签不变。
-- 两种系统都使用原生标题栏、窗口拖动与关闭确认，不改变进程回收逻辑。
+- 两种系统都使用一体式窗口、原生窗口按钮与关闭确认，不改变进程回收逻辑。
 
-2026-10-31 已在 macOS 27.2 实机验收：项目选择、启动/停止与设置入口均显示系统原生玻璃材质，设置 sheet 为玻璃材质；深色和浅色模式下文字对比度正常。系统“减少透明度”与窗口拖动的自动化验证未能完成（该偏好受系统保护、合成鼠标拖拽未被接受），建议发行前人工复核一次。macOS 15 回退界面已在本机构建并截图核对。
+2026-10-31 已在 macOS 27.2 实机验收：项目选择、启动/停止与设置入口均显示系统原生玻璃材质，设置 sheet 为玻璃材质；深色和浅色模式下文字对比度正常。一体式窗口拖动经用户实际操作验证；系统“减少透明度”仍需人工复核。macOS 15 回退界面已在本机构建并截图核对。
 
 ## 使用
 
-1. 在设置中填写 API Key 和 Tunnel ID。组织 ID 可在高级设置中选填；已有保存值会继续使用。可选择“记住密钥”，凭据保存在系统钥匙串；不选时仅用于当前会话。
-2. 点击项目行，选择目标文件夹。
-3. 点击“启动”，等待“本地就绪”。
-4. 在 ChatGPT 启用 Project MCP，读取项目 README 验证端到端连接。
+本分支的新版本可点击主界面右上角的“快速开始”，查看三步指引与操作示意，并打开获取 API Key、创建 Tunnel、填写设置和添加 ChatGPT 插件的入口。GitHub 上已发布的 0.2.1 尚不包含该页面，且设置中必须填写组织 ID；以下说明针对本分支的新版本。
 
-首次接入仍需在 OpenAI 创建本应用专用的 Tunnel，并在 ChatGPT 添加自定义 MCP，选择对应 Tunnel 和“无身份验证”。应用设置中提供官方入口；隧道客户端自身仍使用 API Key 认证。
+1. **获取连接信息：**在 [OpenAI API Keys](https://platform.openai.com/api-keys) 获取 API Key，在 [Tunnel 设置](https://platform.openai.com/settings/organization/tunnels)创建 Tunnel，并关联要使用的 ChatGPT 工作区；复制 Tunnel ID。
+2. **配置并启动：**在 App 设置中填写 API Key 和 Tunnel ID，选择目标项目文件夹，点击“启动”，等待“本地就绪”。组织 ID 可在高级设置中选填；已有保存值会继续使用。“记住密钥”使用系统钥匙串；不选时仅用于当前会话。
+3. **添加 ChatGPT 插件：**打开 [ChatGPT 插件](https://chatgpt.com/plugins)，选择“＋”→“添加自定义 MCP 服务器”，在连接方式中选择 Tunnel、选择相同隧道，身份验证选择“无身份验证”，确认风险提示后创建并安装。在对话中输入 `@` 选择插件，请它列出项目目录，验证端到端连接。
+
+应用设置中提供官方入口；隧道客户端自身仍使用 API Key 认证。操作流程以 [OpenAI 官方指南](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels#connect-from-chatgpt)为准。
 
 同一隧道不要同时用于多个客户端/项目。检测到本机已有其他同用户 Tunnel 客户端时，应用会拒绝启动，保留现有连接；请自行在原终端停止旧客户端。应用不会读取旧客户端环境变量或自动结束它。
 
@@ -56,7 +57,7 @@ swift test --package-path desktop/macos
 bash scripts/verify-macos.sh "dist/Project MCP.app"
 ```
 
-构建产物位于 `dist/Project MCP.app` 和 `dist/Project-MCP-macOS-arm64-test.zip`；生成的运行环境、缓存和二进制不提交 Git。重复构建仅替换本脚本生成且 Bundle ID 匹配的 App，将上一份保留在此次构建的 stage 目录。
+构建产物位于 `dist/Project MCP.app` 和 `dist/Project-MCP-macOS-arm64-v版本号.zip`；生成的运行环境、缓存和二进制不提交 Git。重复构建仅替换本脚本生成且 Bundle ID 匹配的 App，将上一份保留在此次构建的 stage 目录。
 
 ## 正式分发前仍需完成
 

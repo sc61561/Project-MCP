@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 APP="${1:?Usage: verify-macos.sh path/to/app}"
-for FILE in Contents/Info.plist Contents/MacOS/ProjectMCPApp Contents/MacOS/ProjectMCPSupervisor Contents/Resources/server/project-mcp-server Contents/Resources/runtime/tunnel-client Contents/Resources/runtime/manifest.json Contents/Resources/licenses/python/python-packages.json Contents/Resources/licenses/tunnel-client/NOTICE; do
+for FILE in Contents/Info.plist Contents/MacOS/ProjectMCPApp Contents/MacOS/ProjectMCPSupervisor Contents/Resources/server/project-mcp-server Contents/Resources/runtime/tunnel-client Contents/Resources/runtime/manifest.json Contents/Resources/quick-start.gif Contents/Resources/licenses/python/python-packages.json Contents/Resources/licenses/tunnel-client/NOTICE; do
   [[ -f "$APP/$FILE" ]] || { echo "Missing bundle file: $FILE" >&2; exit 1; }
 done
 for FILE in Contents/MacOS/ProjectMCPApp Contents/MacOS/ProjectMCPSupervisor Contents/Resources/server/project-mcp-server Contents/Resources/runtime/tunnel-client; do

@@ -9,12 +9,16 @@ final class AppController: ObservableObject {
     @Published var settings = ConnectionSettings()
     @Published var apiKey = ""
     @Published var showSettings = false
+    @Published var showQuickStart = false
     @Published var errorMessage: String?
     private let settingsStore: SettingsStore
     private let credentialStore: CredentialStore
     let runtime: RuntimeController
     private var subscriptions = Set<AnyCancellable>()
     private var restored = false
+    private var returnToQuickStart = false
+    private var pendingSettingsPresentation = false
+    private var credentialRevision = 0
 
     init(settingsStore: SettingsStore = SettingsStore(),
          credentialStore: CredentialStore = CredentialStore(),
@@ -57,29 +61,54 @@ final class AppController: ObservableObject {
         guard !restored else { return }
         restored = true
         do {
-            if let saved = try settingsStore.load() {
-                settings = saved
-                if saved.rememberKey {
-                    // Keychain access may show an authorization prompt; read it off
-                    // the main thread so the window stays responsive and sized.
-                    let store = credentialStore
-                    Task.detached { [weak self] in
-                        let key = try? store.read()
-                        await MainActor.run {
-                            guard let self else { return }
-                            if let key { self.apiKey = key }
-                            self.presentSettingsIfNeeded()
-                        }
-                    }
-                    return
+            guard let saved = try settingsStore.load() else { return }
+            settings = saved
+            if saved.rememberKey {
+                // Keychain access may show an authorization prompt; read it off
+                // the main thread so the window stays responsive and sized.
+                let store = credentialStore
+                let revision = credentialRevision
+                Task.detached { [weak self] in
+                    let key = try? store.read()
+                    await self?.finishRestoringKey(key, revision: revision)
                 }
+                return
             }
             presentSettingsIfNeeded()
         } catch { errorMessage = error.localizedDescription; showSettings = true }
     }
 
+    private func finishRestoringKey(_ key: String?, revision: Int) {
+        guard revision == credentialRevision else { return }
+        if let key { apiKey = key }
+        presentSettingsIfNeeded()
+    }
+
     private func presentSettingsIfNeeded() {
-        if settings.tunnelID.isEmpty || apiKey.isEmpty { showSettings = true }
+        guard settings.tunnelID.isEmpty || apiKey.isEmpty else { return }
+        if showQuickStart || returnToQuickStart { pendingSettingsPresentation = true }
+        else { showSettings = true }
+    }
+
+    func openSettingsFromQuickStart() {
+        returnToQuickStart = true
+        showQuickStart = false
+    }
+
+    func quickStartDidDismiss() {
+        if returnToQuickStart {
+            pendingSettingsPresentation = false
+            showSettings = true
+        } else if pendingSettingsPresentation {
+            pendingSettingsPresentation = false
+            presentSettingsIfNeeded()
+        }
+    }
+
+    func settingsDidDismiss() {
+        guard returnToQuickStart else { return }
+        returnToQuickStart = false
+        showQuickStart = true
     }
 
     func chooseProject() {
@@ -117,6 +146,8 @@ final class AppController: ObservableObject {
         do {
             try credentialStore.update(key: nextKey, remember: next.rememberKey)
             try settingsStore.save(next)
+            credentialRevision += 1
+            pendingSettingsPresentation = false
             settings = next
             apiKey = nextKey
             errorMessage = nil
