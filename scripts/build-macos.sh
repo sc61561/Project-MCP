@@ -28,6 +28,7 @@ cp packaging/macos/Info.plist "$APP/Contents/Info.plist"
 cp "$SWIFT_BIN/ProjectMCPApp" "$SWIFT_BIN/ProjectMCPSupervisor" "$APP/Contents/MacOS/"
 ditto build/macos/server "$RES/server"
 cp "$RUNTIME" "$RES/runtime/tunnel-client"
+cp assets/chatgpt-plugin-guide.mp4 "$RES/chatgpt-plugin-guide.mp4"
 cp packaging/macos/runtime-manifest.json "$RES/runtime/manifest.json"
 ICON="$ROOT/project_mcp_icon.png"
 [[ -f "$ICON" ]] || { echo 'Missing app icon source project_mcp_icon.png.' >&2; exit 2; }
@@ -49,8 +50,11 @@ if [[ -e 'dist/Project MCP.app' ]]; then
   mv 'dist/Project MCP.app' "$STAGE/Previous Project MCP.app"
 fi
 ditto "$APP" 'dist/Project MCP.app'
-ditto -c -k --sequesterRsrc --keepParent "$APP" dist/Project-MCP-macOS-arm64-test.zip
-shasum -a 256 dist/Project-MCP-macOS-arm64-test.zip > dist/Project-MCP-macOS-arm64-test.zip.sha256
+VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Contents/Info.plist")"
+ARCHIVE="dist/Project-MCP-macOS-arm64-v${VERSION}.zip"
+ditto -c -k --sequesterRsrc --keepParent "$APP" "$STAGE/package.zip"
+mv -f "$STAGE/package.zip" "$ARCHIVE"
+shasum -a 256 "$ARCHIVE" > "$ARCHIVE.sha256"
 bash scripts/verify-macos.sh 'dist/Project MCP.app'
 echo "Test bundle: $ROOT/dist/Project MCP.app"
-echo "Test archive: $ROOT/dist/Project-MCP-macOS-arm64-test.zip"
+echo "Test archive: $ROOT/$ARCHIVE"

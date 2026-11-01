@@ -163,3 +163,17 @@ Apple 签名、公证凭据和干净机器条件可在正式发布前再决定�
 - UI：实际启动最终 App 截图核对设置 sheet 与主窗口；主窗口仅保留标题、设置入口、项目行、状态与启动按钮，无二级介绍文案。
 - 追加根因修复：`ProcessRunner` 启动的 supervisor 会继承调用线程被阻塞/忽略的 SIGTERM，导致 `kill(SIGTERM)` 挂起；已改为 `posix_spawn` + `waitpid`（无 shell、协议不变），spawn 时重置信号掩码与 TERM/INT/HUP/PIPE 默认处置，并新增 `testSupervisorEscapesBlockedSignalMaskOfLaunchingThread` 确定性回归测试。
 - 仍未完成（发布门槛，保持未勾选）：真实凭据下的 Tunnel 端到端启动（计划任务 3 最后一步）、无 Python 干净机器下载/检疫验收、Developer ID 签名与公证、GitHub Release 上传。
+
+## 2026-10-31 追加：原生 Liquid Glass（条件化）
+
+- 新增 `desktop/macos/Sources/ProjectMCPApp/LiquidGlassSupport.swift`：macOS 26+ 通过 `#available(macOS 26.0, *)` 使用 `glassEffect` / `.buttonStyle(.glass)`；macOS 15 与“减少透明度”模式保持原有 `NSVisualEffectView` 与自定义按钮。
+- 主窗口布局、文案、快捷键、无障碍标签、原生标题栏和进程回收逻辑不变；未修改 MCP 工具、Tunnel、钥匙串、项目访问或配置格式。
+- 顺带修复启动回归：`restore()` 同步读 Keychain 会阻塞首次布局并留下 0×0 窗口，现改为后台线程读取、窗口先显示。
+- 验证：macOS 15.7.7 上 Swift 32/32、Python 25/27 通过，回退界面截图正常；**macOS 26/27 的液态玻璃视觉、深浅色、减少透明度与拖动交互未验收（没有新系统机器），按待验证处理。**
+
+## 2026-10-31 macOS 27 实机验收
+
+- 机器升级到 macOS 27.2 后，用 0.3.1 测试包实机核对：原生 Liquid Glass 自动生效于项目选择、启动/停止、设置入口；设置 sheet 亦为玻璃材质。
+- 深色与浅色模式截图核对，文字与控件对比度正常；无障碍标签/快捷键/布局未变。
+- 调整：主操作按钮由系统 `.glass` 样式改为对按钮直接应用 `glassEffect`，避免在纯窗口中背景几乎不可见；设置入口仍用原生 `.glass` 样式。
+- 未完成：“减少透明度”系统开关无法由自动化会话切换；合成鼠标拖拽未被系统接受，窗口拖动需人工复核。两项在交接中标注为待人工确认。

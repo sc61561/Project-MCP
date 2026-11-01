@@ -4,6 +4,18 @@ import Darwin
 @testable import ProjectMCPCore
 
 final class LaunchAndHealthTests: XCTestCase {
+    func testOptionalOrganizationArguments() throws {
+        let fixture = try RuntimeFixture()
+        defer { fixture.remove() }
+        var config = fixture.configuration()
+        config.organizationID = ""
+        XCTAssertNoThrow(try config.validate())
+        XCTAssertFalse(config.tunnelArguments.contains("--control-plane.organization-id"))
+        config.organizationID = "org-test"
+        let args = config.tunnelArguments
+        let index = try XCTUnwrap(args.firstIndex(of: "--control-plane.organization-id"))
+        XCTAssertEqual(args[index + 1], "org-test")
+    }
     func testLaunchKeepsProjectAndSecretOutOfArgumentsAndJSON() throws {
         let config = LaunchConfiguration(runtimeURL: URL(fileURLWithPath: "/tmp/应用, a/runtime/tunnel-client"), serverDirectoryURL: URL(fileURLWithPath: "/tmp/应用, a/server"), projectPath: "/tmp/项目, a", tunnelID: "fake-tunnel", organizationID: "fake-org", healthURLFile: URL(fileURLWithPath: "/tmp/run/health"))
         let args = config.tunnelArguments

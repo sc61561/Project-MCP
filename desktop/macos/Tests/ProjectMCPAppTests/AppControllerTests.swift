@@ -16,7 +16,7 @@ import ProjectMCPCore
     func testIncompleteConfigurationCannotPersistCredential() async throws {
         let (app, store, key, defaults, name) = makeApp()
         defer { defaults.removePersistentDomain(forName: name) }
-        app.settings = ConnectionSettings(tunnelID: "tunnel_test", organizationID: "", rememberKey: true)
+        app.settings = ConnectionSettings(tunnelID: "", organizationID: "", rememberKey: true)
         app.apiKey = "fake-key"
         app.showSettings = true
         app.saveSettings()
@@ -24,6 +24,15 @@ import ProjectMCPCore
         XCTAssertNotNil(app.errorMessage)
         XCTAssertNil(try store.load())
         XCTAssertEqual(key.writes, 0)
+    }
+
+    func testConfigurationCanBeSavedWithoutOrganization() async throws {
+        let (app, store, _, defaults, name) = makeApp()
+        defer { defaults.removePersistentDomain(forName: name) }
+        app.showSettings = true
+        app.saveSettings(candidate: ConnectionSettings(tunnelID: "tunnel_test"), key: "fake-key")
+        XCTAssertFalse(app.showSettings)
+        XCTAssertEqual(try store.load()?.organizationID, "")
     }
 
     func testRestoreWithoutRememberNeverReadsKeychain() async throws {
@@ -34,6 +43,32 @@ import ProjectMCPCore
         XCTAssertEqual(key.reads, 0)
         XCTAssertEqual(app.apiKey, "")
         XCTAssertTrue(app.showSettings)
+    }
+
+    func testFirstLaunchDoesNotOpenSettings() async {
+        let (app, _, key, defaults, name) = makeApp()
+        defer { defaults.removePersistentDomain(forName: name) }
+        app.restore()
+        XCTAssertFalse(app.showSettings)
+        XCTAssertEqual(key.reads, 0)
+    }
+
+    func testLateKeychainReadDoesNotReplaceNewlySavedKey() async throws {
+        let name = "ProjectMCPAppTests.\(UUID())"
+        let defaults = UserDefaults(suiteName: name)!
+        defer { defaults.removePersistentDomain(forName: name) }
+        let store = SettingsStore(defaults: defaults)
+        try store.save(ConnectionSettings(tunnelID: "tunnel_old", rememberKey: true))
+        let backend = DelayedCredentials(readValue: "old-fake-key")
+        let app = AppController(settingsStore: store, credentialStore: CredentialStore(backend: backend), runtime: RuntimeController(conflictDetector: { false }))
+        app.restore()
+        let started = await Task.detached { backend.waitForStart() }.value
+        XCTAssertTrue(started)
+        app.saveSettings(candidate: ConnectionSettings(tunnelID: "tunnel_new"), key: "new-fake-key")
+        XCTAssertEqual(app.apiKey, "new-fake-key")
+        backend.finishRead.signal()
+        try await Task.sleep(nanoseconds: 150_000_000)
+        XCTAssertEqual(app.apiKey, "new-fake-key")
     }
 
     func testFailedCredentialSaveDoesNotPersistOrCloseSettings() async throws {
@@ -101,10 +136,12 @@ import ProjectMCPCore
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 440, height: 300), styleMask: [.titled, .closable, .fullSizeContentView], backing: .buffered, defer: false)
         window.contentView = WindowBehaviorView()
         XCTAssertTrue(window.isMovable)
-        XCTAssertFalse(window.styleMask.contains(.fullSizeContentView))
-        XCTAssertFalse(window.titlebarAppearsTransparent)
+        XCTAssertTrue(window.isOpaque)
+        XCTAssertTrue(window.styleMask.contains(.fullSizeContentView))
+        XCTAssertTrue(window.titlebarAppearsTransparent)
         window.close()
     }
+
 }
 
 private final class TestCredentials: CredentialBackend {
@@ -115,4 +152,19 @@ private final class TestCredentials: CredentialBackend {
     func read() throws -> String? { reads += 1; return value }
     func save(_ key: String) throws { if denied { throw CredentialError.accessDenied }; writes += 1; value = key }
     func delete() throws { if denied { throw CredentialError.accessDenied }; value = nil }
+}
+
+private final class DelayedCredentials: CredentialBackend, @unchecked Sendable {
+    let readStarted = DispatchSemaphore(value: 0)
+    let finishRead = DispatchSemaphore(value: 0)
+    let readValue: String?
+    init(readValue: String? = nil) { self.readValue = readValue }
+    func waitForStart() -> Bool { readStarted.wait(timeout: .now() + 2) == .success }
+    func read() throws -> String? {
+        readStarted.signal()
+        _ = finishRead.wait(timeout: .now() + 2)
+        return readValue
+    }
+    func save(_ key: String) throws {}
+    func delete() throws {}
 }

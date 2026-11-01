@@ -4,15 +4,21 @@
 
 **预发布测试版** · Apple Silicon（M 系列）· macOS 15 或更高版本。安装包尚未经过 Apple 公证；使用和首次配置请参阅 [macOS 软件说明](docs/macos-app.md)。
 
+当前下载的 0.2.1 设置中需要填写组织 ID；本分支的设置页教程和组织 ID 选填功能尚未发布新的安装包。
+
 用 Python + FastMCP，让 ChatGPT 只读访问一个本地项目文件夹。通过 `PROJECT_ROOT` 选择目录，使用 STDIO 在本地运行，可通过 OpenAI Secure MCP Tunnel 连接 ChatGPT。
 
 只提供三个工具：列目录、读文本、全文搜索。支持分页，无数据库、Embedding 或 Web UI。
 
 ## macOS 桌面启动器（测试版）
 
-新增原生毛玻璃极简窗口：选择项目、查看状态、一键启动/停止；连接配置和诊断收进设置。应用内置 Python 和 Tunnel，使用方式及构建步骤见 [macOS 软件说明](docs/macos-app.md)。
+原生毛玻璃极简窗口：选择项目、查看状态、一键启动/停止；连接配置和诊断收进设置。macOS 26 及以上使用系统原生 Liquid Glass（已在 macOS 27.2 实机核对），macOS 15 保持原有毛玻璃样式。应用内置 Python 和 Tunnel，使用方式及构建步骤见 [macOS 软件说明](docs/macos-app.md)。
 
-首版目标为 Apple Silicon / macOS 15+。窗口关闭崩溃与 supervisor 停止死锁已修复；窗口拖动的实际使用体验仍需验证。Apple 签名公证、公开分发的 runtime 来源复核和无 Python 新机器验收仍是正式发布前的门槛。现有 CLI 用法继续有效。
+首版目标为 Apple Silicon / macOS 15+。窗口关闭崩溃与 supervisor 停止死锁已修复；一体式窗口拖动已在 macOS 27.2 由用户实际验证。Apple 签名公证、公开分发的 runtime 来源复核和无 Python 新机器验收仍是正式发布前的门槛。现有 CLI 用法继续有效。
+
+打开 App 的设置，按默认展开的 **快速开始** 获取连接信息、配置并启动，然后在 ChatGPT 添加插件。以下是添加插件的实际操作演示：
+
+![添加 ChatGPT 插件操作演示](assets/chatgpt-plugin-guide.gif)
 
 ## 快速开始
 
