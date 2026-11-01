@@ -9,15 +9,12 @@ final class AppController: ObservableObject {
     @Published var settings = ConnectionSettings()
     @Published var apiKey = ""
     @Published var showSettings = false
-    @Published var showQuickStart = false
     @Published var errorMessage: String?
     private let settingsStore: SettingsStore
     private let credentialStore: CredentialStore
     let runtime: RuntimeController
     private var subscriptions = Set<AnyCancellable>()
     private var restored = false
-    private var returnToQuickStart = false
-    private var pendingSettingsPresentation = false
     private var credentialRevision = 0
 
     init(settingsStore: SettingsStore = SettingsStore(),
@@ -86,29 +83,7 @@ final class AppController: ObservableObject {
 
     private func presentSettingsIfNeeded() {
         guard settings.tunnelID.isEmpty || apiKey.isEmpty else { return }
-        if showQuickStart || returnToQuickStart { pendingSettingsPresentation = true }
-        else { showSettings = true }
-    }
-
-    func openSettingsFromQuickStart() {
-        returnToQuickStart = true
-        showQuickStart = false
-    }
-
-    func quickStartDidDismiss() {
-        if returnToQuickStart {
-            pendingSettingsPresentation = false
-            showSettings = true
-        } else if pendingSettingsPresentation {
-            pendingSettingsPresentation = false
-            presentSettingsIfNeeded()
-        }
-    }
-
-    func settingsDidDismiss() {
-        guard returnToQuickStart else { return }
-        returnToQuickStart = false
-        showQuickStart = true
+        showSettings = true
     }
 
     func chooseProject() {
@@ -147,7 +122,6 @@ final class AppController: ObservableObject {
             try credentialStore.update(key: nextKey, remember: next.rememberKey)
             try settingsStore.save(next)
             credentialRevision += 1
-            pendingSettingsPresentation = false
             settings = next
             apiKey = nextKey
             errorMessage = nil
@@ -173,11 +147,4 @@ final class AppController: ObservableObject {
         NSPasteboard.general.setString(runtime.diagnostics.redactedSummary(), forType: .string)
     }
 
-    func openHelp() {
-        let alert = NSAlert()
-        alert.messageText = "连接 ChatGPT"
-        alert.informativeText = "在 OpenAI 创建本应用专用的隧道，填写连接信息并选择项目。\n\n在 ChatGPT 添加自定义 MCP，选择相同隧道，身份验证选择无身份验证。首次调用文件工具验证连接。\n\n连接期间请保持本应用运行，电脑联网且唤醒。其他终端连接需由你自行停止。"
-        alert.addButton(withTitle: "知道了")
-        alert.runModal()
-    }
 }

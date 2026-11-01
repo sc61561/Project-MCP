@@ -16,7 +16,7 @@
 
 ## 使用
 
-本分支的新版本可点击主界面右上角的“快速开始”，查看三步指引与操作示意，并打开获取 API Key、创建 Tunnel、填写设置和添加 ChatGPT 插件的入口。GitHub 上已发布的 0.2.1 尚不包含该页面，且设置中必须填写组织 ID；以下说明针对本分支的新版本。
+本分支的新版本在设置中默认展开“快速开始”，提供三步指引、相关入口和循环播放的插件操作视频。GitHub 上已发布的 0.2.1 尚不包含此指引，且设置中必须填写组织 ID；以下说明针对本分支的新版本。
 
 1. **获取连接信息：**在 [OpenAI API Keys](https://platform.openai.com/api-keys) 获取 API Key，在 [Tunnel 设置](https://platform.openai.com/settings/organization/tunnels)创建 Tunnel，并关联要使用的 ChatGPT 工作区；复制 Tunnel ID。
 2. **配置并启动：**在 App 设置中填写 API Key 和 Tunnel ID，选择目标项目文件夹，点击“启动”，等待“本地就绪”。组织 ID 可在高级设置中选填；已有保存值会继续使用。“记住密钥”使用系统钥匙串；不选时仅用于当前会话。

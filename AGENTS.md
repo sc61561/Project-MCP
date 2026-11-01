@@ -43,8 +43,11 @@ stop deadlock are fixed. Startup reads the Keychain off the main thread so an ac
 prompt cannot block the first window layout. macOS 26+ uses conditional native Liquid
 Glass (`glassEffect` and `.glass` button styles); macOS 15 keeps the existing
 NSVisualEffectView styling, and reduced-transparency disables glass on both paths.
-Current source passes the full Swift suite (32 tests) and the Python suite against the
-packaged app (27 tests). Liquid Glass visuals were visually verified on macOS 27.2 (dark and light, main window and settings sheet). Reduced-transparency and window drag still need a manual check; macOS 15 fallback was verified by screenshot.
+Run the Swift and Python suites above to verify the current source and packaged app.
+Liquid Glass visuals were visually verified on macOS 27.2 (dark and light, main window
+and settings sheet); the user confirmed window dragging works. Reduced-transparency
+still needs a manual check; macOS 15 fallback was verified by screenshot. The three-step
+quick start is in the settings sheet; a local plugin tutorial video is bundled.
 `dist/` holds locally rebuilt, ad-hoc signed test artifacts only. Formal distribution
 (Developer ID signing, notarization, runtime provenance review and a clean-machine
 no-Python acceptance) remains pending; do not claim a notarized release.

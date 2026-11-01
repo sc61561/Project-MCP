@@ -4,7 +4,7 @@
 
 **预发布测试版** · Apple Silicon（M 系列）· macOS 15 或更高版本。安装包尚未经过 Apple 公证；使用和首次配置请参阅 [macOS 软件说明](docs/macos-app.md)。
 
-当前下载的 0.2.1 尚不包含下面介绍的快速开始页面，且设置中需要填写组织 ID；该页面和组织 ID 选填功能在本分支的新版本中，尚未发布新的安装包。
+当前下载的 0.2.1 设置中需要填写组织 ID；本分支的设置页教程和组织 ID 选填功能尚未发布新的安装包。
 
 用 Python + FastMCP，让 ChatGPT 只读访问一个本地项目文件夹。通过 `PROJECT_ROOT` 选择目录，使用 STDIO 在本地运行，可通过 OpenAI Secure MCP Tunnel 连接 ChatGPT。
 
@@ -16,9 +16,9 @@
 
 首版目标为 Apple Silicon / macOS 15+。窗口关闭崩溃与 supervisor 停止死锁已修复；一体式窗口拖动已在 macOS 27.2 由用户实际验证。Apple 签名公证、公开分发的 runtime 来源复核和无 Python 新机器验收仍是正式发布前的门槛。现有 CLI 用法继续有效。
 
-打开 App 后，点击右上角的 **快速开始**，按三步获取连接信息、配置并启动，然后在 ChatGPT 添加插件。以下动图为操作示意，实际页面可能有所变化。
+打开 App 的设置，按默认展开的 **快速开始** 获取连接信息、配置并启动，然后在 ChatGPT 添加插件。以下是添加插件的实际操作演示：
 
-![三步连接 Project MCP 的操作示意](assets/quick-start.gif)
+![添加 ChatGPT 插件操作演示](assets/chatgpt-plugin-guide.gif)
 
 ## 快速开始
 

@@ -15,14 +15,6 @@ struct MainView: View {
             HStack(alignment: .center) {
                 Text("Project MCP").font(.system(size: 18, weight: .semibold))
                 Spacer()
-                Button { app.showQuickStart = true } label: {
-                    Label("快速开始", systemImage: "questionmark.circle")
-                        .font(.system(size: 12, weight: .medium))
-                        .frame(height: 28)
-                }
-                .buttonStyle(.plain)
-                .liquidGlassButton(available: glassControls, prominent: false)
-                .help("快速开始").accessibilityLabel("快速开始")
                 Button { app.showSettings = true } label: {
                     Image(systemName: "slider.horizontal.3").font(.system(size: 16))
                         .frame(width: 28, height: 28)
@@ -96,10 +88,7 @@ struct MainView: View {
             else { GlassBackground().ignoresSafeArea() }
         }
         .background(WindowBehavior().frame(width: 0, height: 0))
-        .sheet(isPresented: $app.showQuickStart, onDismiss: app.quickStartDidDismiss) {
-            QuickStartView(app: app)
-        }
-        .sheet(isPresented: $app.showSettings, onDismiss: app.settingsDidDismiss) { SettingsView(app: app) }
+        .sheet(isPresented: $app.showSettings) { SettingsView(app: app) }
         .onAppear { app.restore() }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.15), value: app.isRunning)
     }

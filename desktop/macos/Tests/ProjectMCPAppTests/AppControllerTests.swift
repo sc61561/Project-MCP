@@ -45,70 +45,12 @@ import ProjectMCPCore
         XCTAssertTrue(app.showSettings)
     }
 
-    func testFirstLaunchDoesNotCoverQuickStartWithSettings() async {
+    func testFirstLaunchDoesNotOpenSettings() async {
         let (app, _, key, defaults, name) = makeApp()
         defer { defaults.removePersistentDomain(forName: name) }
         app.restore()
         XCTAssertFalse(app.showSettings)
-        XCTAssertFalse(app.showQuickStart)
         XCTAssertEqual(key.reads, 0)
-    }
-
-    func testQuickStartReturnsAfterSettingsCloses() async {
-        let (app, _, _, defaults, name) = makeApp()
-        defer { defaults.removePersistentDomain(forName: name) }
-        app.showQuickStart = true
-        app.openSettingsFromQuickStart()
-        XCTAssertFalse(app.showQuickStart)
-        XCTAssertFalse(app.showSettings)
-        app.quickStartDidDismiss()
-        XCTAssertTrue(app.showSettings)
-        app.showSettings = false
-        app.settingsDidDismiss()
-        XCTAssertTrue(app.showQuickStart)
-        app.showQuickStart = false
-        app.settingsDidDismiss()
-        XCTAssertFalse(app.showQuickStart)
-    }
-
-    func testKeychainRestoreDoesNotOpenSettingsDuringQuickStartTransition() async throws {
-        let name = "ProjectMCPAppTests.\(UUID())"
-        let defaults = UserDefaults(suiteName: name)!
-        defer { defaults.removePersistentDomain(forName: name) }
-        let store = SettingsStore(defaults: defaults)
-        try store.save(ConnectionSettings(tunnelID: "tunnel_test", rememberKey: true))
-        let backend = DelayedCredentials()
-        let app = AppController(settingsStore: store, credentialStore: CredentialStore(backend: backend), runtime: RuntimeController(conflictDetector: { false }))
-        app.restore()
-        let started = await Task.detached { backend.waitForStart() }.value
-        XCTAssertTrue(started)
-        app.showQuickStart = true
-        app.openSettingsFromQuickStart()
-        backend.finishRead.signal()
-        try await Task.sleep(nanoseconds: 150_000_000)
-        XCTAssertFalse(app.showSettings, "Wait for the guide to finish closing before opening settings")
-        app.quickStartDidDismiss()
-        XCTAssertTrue(app.showSettings)
-    }
-
-    func testMissingRestoredKeyPromptsAfterQuickStartCloses() async throws {
-        let name = "ProjectMCPAppTests.\(UUID())"
-        let defaults = UserDefaults(suiteName: name)!
-        defer { defaults.removePersistentDomain(forName: name) }
-        let store = SettingsStore(defaults: defaults)
-        try store.save(ConnectionSettings(tunnelID: "tunnel_test", rememberKey: true))
-        let backend = DelayedCredentials()
-        let app = AppController(settingsStore: store, credentialStore: CredentialStore(backend: backend), runtime: RuntimeController(conflictDetector: { false }))
-        app.restore()
-        let started = await Task.detached { backend.waitForStart() }.value
-        XCTAssertTrue(started)
-        app.showQuickStart = true
-        backend.finishRead.signal()
-        try await Task.sleep(nanoseconds: 150_000_000)
-        XCTAssertFalse(app.showSettings)
-        app.showQuickStart = false
-        app.quickStartDidDismiss()
-        XCTAssertTrue(app.showSettings)
     }
 
     func testLateKeychainReadDoesNotReplaceNewlySavedKey() async throws {
