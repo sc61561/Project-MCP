@@ -40,7 +40,7 @@ public struct LaunchConfiguration: Codable, Sendable {
     }
     public var tunnelArguments: [String] {
         ["run", "--control-plane.api-key", "env:CONTROL_PLANE_API_KEY",
-         "--control-plane.tunnel-id", tunnelID, "--control-plane.organization-id", organizationID,
+         "--control-plane.tunnel-id", tunnelID] + (organizationID.isEmpty ? [] : ["--control-plane.organization-id", organizationID]) + [
          "--mcp.command", "command=./project-mcp-server,channel=main",
          "--health.listen-addr", "127.0.0.1:0", "--health.url-file", healthURLFile.path,
          "--log.level", "info", "--log.file", "stdout"]
@@ -54,8 +54,9 @@ public struct LaunchConfiguration: Codable, Sendable {
         return env
     }
     public func validate() throws {
-        let strings = [projectPath, tunnelID, organizationID, runtimeURL.path, serverDirectoryURL.path, healthURLFile.path]
+        let strings = [projectPath, tunnelID, runtimeURL.path, serverDirectoryURL.path, healthURLFile.path]
         guard strings.allSatisfy({ !$0.isEmpty && !$0.contains("\0") && $0.utf8.count < 16384 }),
+              !organizationID.contains("\0"), organizationID.utf8.count < 16384,
               projectPath.hasPrefix("/"), runtimeURL.isFileURL, serverDirectoryURL.isFileURL,
               healthURLFile.isFileURL, !tunnelID.hasPrefix("-"), !organizationID.hasPrefix("-") else { throw RuntimeError.invalidConfiguration }
         var isDirectory: ObjCBool = false

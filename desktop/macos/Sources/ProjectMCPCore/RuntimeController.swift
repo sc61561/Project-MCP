@@ -53,8 +53,7 @@ public enum RuntimeState: Equatable, Sendable {
         var directory: URL?
         do {
             guard !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, !apiKey.contains("\0"),
-                  !settings.tunnelID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                  !settings.organizationID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw RuntimeError.invalidConfiguration }
+                  !settings.tunnelID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw RuntimeError.invalidConfiguration }
             let exclusive = try LauncherLock(url: lockURL ?? LauncherLock.defaultURL)
             localLock = exclusive; sessionLock = exclusive
             guard !conflictDetector() else { throw RuntimeError.conflict }

@@ -20,11 +20,14 @@ struct SettingsView: View {
                     Text("Tunnel ID")
                     TextField("", text: $draft.tunnelID).accessibilityLabel("Tunnel ID")
                 }
-                GridRow {
-                    Text("组织 ID")
-                    TextField("", text: $draft.organizationID).accessibilityLabel("组织 ID")
-                }
             }.textFieldStyle(.roundedBorder).disabled(app.isRunning)
+            DisclosureGroup("高级设置") {
+                HStack {
+                    Text("组织 ID（可选）")
+                    TextField("", text: $draft.organizationID).accessibilityLabel("组织 ID（可选）")
+                        .textFieldStyle(.roundedBorder)
+                }.disabled(app.isRunning)
+            }
             Toggle("记住密钥", isOn: $draft.rememberKey)
                 .toggleStyle(.checkbox).disabled(app.isRunning)
 

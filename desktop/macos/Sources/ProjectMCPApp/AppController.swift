@@ -79,7 +79,7 @@ final class AppController: ObservableObject {
     }
 
     private func presentSettingsIfNeeded() {
-        if settings.tunnelID.isEmpty || settings.organizationID.isEmpty || apiKey.isEmpty { showSettings = true }
+        if settings.tunnelID.isEmpty || apiKey.isEmpty { showSettings = true }
     }
 
     func chooseProject() {
@@ -111,7 +111,7 @@ final class AppController: ObservableObject {
         let nextKey = (key ?? apiKey).trimmingCharacters(in: .whitespacesAndNewlines)
         next.tunnelID = next.tunnelID.trimmingCharacters(in: .whitespacesAndNewlines)
         next.organizationID = next.organizationID.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard next.tunnelID.hasPrefix("tunnel_"), !next.organizationID.isEmpty, !nextKey.isEmpty else {
+        guard next.tunnelID.hasPrefix("tunnel_"), !nextKey.isEmpty else {
             errorMessage = "请填写完整连接信息"; return
         }
         do {
@@ -127,7 +127,7 @@ final class AppController: ObservableObject {
     func toggleConnection() async {
         if isRunning { await stop(); return }
         guard !settings.projectPath.isEmpty else { chooseProject(); return }
-        guard !apiKey.isEmpty, !settings.organizationID.isEmpty, settings.tunnelID.hasPrefix("tunnel_") else {
+        guard !apiKey.isEmpty, settings.tunnelID.hasPrefix("tunnel_") else {
             errorMessage = "请配置连接"; showSettings = true; return
         }
         errorMessage = nil

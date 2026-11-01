@@ -12,7 +12,7 @@ struct MainView: View {
 
     var body: some View {
         VStack(spacing: 28) {
-            HStack {
+            HStack(alignment: .center) {
                 Text("Project MCP").font(.system(size: 18, weight: .semibold))
                 Spacer()
                 Button { app.showSettings = true } label: {
@@ -23,11 +23,13 @@ struct MainView: View {
                 .liquidGlassButton(available: glassControls, prominent: false)
                 .help("设置").accessibilityLabel("设置")
             }
+            .frame(height: 36)
 
             Button { app.chooseProject() } label: {
                 HStack(spacing: 13) {
                     Image(systemName: "folder").font(.system(size: 23, weight: .light))
                         .foregroundStyle(.secondary)
+                        .frame(width: 26, alignment: .center)
                     Text(app.projectName).font(.system(size: 15, weight: .medium))
                         .lineLimit(1).truncationMode(.middle)
                     Spacer(minLength: 8)
@@ -68,22 +70,22 @@ struct MainView: View {
                     Text(app.isRunning ? "停止" : "启动").font(.system(size: 14, weight: .semibold))
                 }.frame(maxWidth: .infinity).frame(height: 44)
                     .background {
-                        if !glassControls { RoundedRectangle(cornerRadius: 13).fill(.primary.opacity(0.1)) }
+                        if !glassControls { RoundedRectangle(cornerRadius: 15).fill(.primary.opacity(0.1)) }
                     }
                     .overlay {
-                        if !glassControls { RoundedRectangle(cornerRadius: 13).strokeBorder(.primary.opacity(0.07)) }
+                        if !glassControls { RoundedRectangle(cornerRadius: 15).strokeBorder(.primary.opacity(0.07)) }
                     }
-                    .contentShape(RoundedRectangle(cornerRadius: 13))
+                    .contentShape(RoundedRectangle(cornerRadius: 15))
             }
             .buttonStyle(.plain)
-            .liquidGlass(available: glassControls, interactive: !reduceMotion, in: RoundedRectangle(cornerRadius: 13))
+            .liquidGlass(available: glassControls, interactive: !reduceMotion, in: RoundedRectangle(cornerRadius: 15))
             .disabled(app.isBusy)
             .keyboardShortcut(.return, modifiers: [])
         }
-        .padding(28).padding(.top, 12).frame(width: 440)
+        .padding(28).padding(.top, 28).frame(width: 440)
         .background {
-            if reduceTransparency { Color(nsColor: .windowBackgroundColor) }
-            else { GlassBackground() }
+            if reduceTransparency { Color(nsColor: .windowBackgroundColor).ignoresSafeArea() }
+            else { GlassBackground().ignoresSafeArea() }
         }
         .background(WindowBehavior().frame(width: 0, height: 0))
         .sheet(isPresented: $app.showSettings) { SettingsView(app: app) }
@@ -134,10 +136,10 @@ final class WindowBehaviorView: NSView {
         // Windows created outside Interface Builder default to releasedWhenClosed,
         // which double-releases under ARC/SwiftUI ownership and crashes on close.
         window.isReleasedWhenClosed = false
-        window.isOpaque = false
-        window.backgroundColor = .clear
-        window.styleMask.remove(.fullSizeContentView)
-        window.titlebarAppearsTransparent = false
+        window.isOpaque = true
+        window.backgroundColor = .windowBackgroundColor
+        window.styleMask.insert(.fullSizeContentView)
+        window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
         window.isMovableByWindowBackground = true
         window.delegate = WindowCloseDelegate.shared

@@ -16,7 +16,7 @@ import ProjectMCPCore
     func testIncompleteConfigurationCannotPersistCredential() async throws {
         let (app, store, key, defaults, name) = makeApp()
         defer { defaults.removePersistentDomain(forName: name) }
-        app.settings = ConnectionSettings(tunnelID: "tunnel_test", organizationID: "", rememberKey: true)
+        app.settings = ConnectionSettings(tunnelID: "", organizationID: "", rememberKey: true)
         app.apiKey = "fake-key"
         app.showSettings = true
         app.saveSettings()
@@ -24,6 +24,15 @@ import ProjectMCPCore
         XCTAssertNotNil(app.errorMessage)
         XCTAssertNil(try store.load())
         XCTAssertEqual(key.writes, 0)
+    }
+
+    func testConfigurationCanBeSavedWithoutOrganization() async throws {
+        let (app, store, _, defaults, name) = makeApp()
+        defer { defaults.removePersistentDomain(forName: name) }
+        app.showSettings = true
+        app.saveSettings(candidate: ConnectionSettings(tunnelID: "tunnel_test"), key: "fake-key")
+        XCTAssertFalse(app.showSettings)
+        XCTAssertEqual(try store.load()?.organizationID, "")
     }
 
     func testRestoreWithoutRememberNeverReadsKeychain() async throws {
@@ -101,10 +110,12 @@ import ProjectMCPCore
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 440, height: 300), styleMask: [.titled, .closable, .fullSizeContentView], backing: .buffered, defer: false)
         window.contentView = WindowBehaviorView()
         XCTAssertTrue(window.isMovable)
-        XCTAssertFalse(window.styleMask.contains(.fullSizeContentView))
-        XCTAssertFalse(window.titlebarAppearsTransparent)
+        XCTAssertTrue(window.isOpaque)
+        XCTAssertTrue(window.styleMask.contains(.fullSizeContentView))
+        XCTAssertTrue(window.titlebarAppearsTransparent)
         window.close()
     }
+
 }
 
 private final class TestCredentials: CredentialBackend {
