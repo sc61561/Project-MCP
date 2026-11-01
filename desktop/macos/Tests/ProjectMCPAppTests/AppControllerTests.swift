@@ -131,6 +131,38 @@ import ProjectMCPCore
         window.close()
     }
 
+    func testWindowCloseCanMinimizeInsteadOfClosing() async {
+        _ = NSApplication.shared
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 100, height: 100), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false
+        let delegate = WindowCloseDelegate(minimizeOnClose: { true })
+        XCTAssertFalse(delegate.windowShouldClose(window))
+        window.close()
+    }
+
+    func testCloseButtonMinimizesTheActualWindow() async throws {
+        _ = NSApplication.shared
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 200, height: 100), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
+        let behavior = WindowBehaviorView()
+        behavior.closeHandler = WindowCloseDelegate(minimizeOnClose: { true })
+        window.contentView = behavior
+        window.makeKeyAndOrderFront(nil)
+        let button = try XCTUnwrap(window.standardWindowButton(.closeButton))
+        button.performClick(nil)
+        try await Task.sleep(nanoseconds: 150_000_000)
+        XCTAssertTrue(window.isMiniaturized)
+        window.close()
+    }
+
+    func testWindowCloseCanUseNormalCloseWhenIdle() async {
+        _ = NSApplication.shared
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 100, height: 100), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false
+        let delegate = WindowCloseDelegate(minimizeOnClose: { false })
+        XCTAssertTrue(delegate.windowShouldClose(window))
+        window.close()
+    }
+
     func testWindowRetainsNativeDraggableTitleBar() async {
         _ = NSApplication.shared
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 440, height: 300), styleMask: [.titled, .closable, .fullSizeContentView], backing: .buffered, defer: false)

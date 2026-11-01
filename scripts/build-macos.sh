@@ -29,6 +29,7 @@ cp "$SWIFT_BIN/ProjectMCPApp" "$SWIFT_BIN/ProjectMCPSupervisor" "$APP/Contents/M
 ditto build/macos/server "$RES/server"
 cp "$RUNTIME" "$RES/runtime/tunnel-client"
 cp assets/chatgpt-plugin-guide.mp4 "$RES/chatgpt-plugin-guide.mp4"
+cp assets/github.svg "$RES/github.svg"
 cp packaging/macos/runtime-manifest.json "$RES/runtime/manifest.json"
 ICON="$ROOT/project_mcp_icon.png"
 [[ -f "$ICON" ]] || { echo 'Missing app icon source project_mcp_icon.png.' >&2; exit 2; }

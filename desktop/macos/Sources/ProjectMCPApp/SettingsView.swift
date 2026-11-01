@@ -8,6 +8,7 @@ struct SettingsView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showDiagnostics = false
     @State private var showQuickStart = true
+    @AppStorage("minimizeOnClose") private var minimizeOnClose = true
     @State private var draft = ConnectionSettings()
     @State private var draftKey = ""
 
@@ -17,7 +18,7 @@ struct SettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("连接设置").font(.system(size: 18, weight: .semibold))
+            Text("设置").font(.system(size: 18, weight: .semibold))
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     Grid(alignment: .leading, horizontalSpacing: 15, verticalSpacing: 12) {
@@ -39,6 +40,8 @@ struct SettingsView: View {
                     }
                     Toggle("记住密钥", isOn: $draft.rememberKey)
                         .toggleStyle(.checkbox).disabled(app.isRunning)
+                    Toggle("关闭窗口时最小化", isOn: $minimizeOnClose)
+                        .toggleStyle(.checkbox)
 
                     DisclosureGroup("快速开始", isExpanded: $showQuickStart) {
                         VStack(alignment: .leading, spacing: 10) {

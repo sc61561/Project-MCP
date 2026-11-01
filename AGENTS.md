@@ -9,6 +9,9 @@ Minimal Python + FastMCP 2.x STDIO server for read-only access to one local proj
 - Run `python -m pytest -q` before committing changes.
 - Desktop core: `swift test --package-path desktop/macos`.
 - Test app bundle: `bash scripts/build-macos.sh --test-package`; see docs/macos-app.md.
+- After verifying a build, keep only the final local App and installation archive;
+  remove obsolete test Apps and build-stage copies created by the work. Check for
+  running Apps or tunnels first and do not stop or delete anything they depend on.
 - See README.md for Secure MCP Tunnel setup and pagination examples.
 
 ## Structure and conventions

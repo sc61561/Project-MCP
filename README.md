@@ -1,14 +1,33 @@
-# Project MCP
+<p align="center">
+  <img src="project_mcp_icon.png" alt="Project MCP 图标" width="150">
+</p>
 
-## [⬇️ 下载 macOS 版 Project MCP 0.2.1](https://github.com/sc61561/Project-MCP/releases/tag/v0.2.1)
+<h1 align="center">Project MCP</h1>
 
-**预发布测试版** · Apple Silicon（M 系列）· macOS 15 或更高版本。安装包尚未经过 Apple 公证；使用和首次配置请参阅 [macOS 软件说明](docs/macos-app.md)。
+<p align="center">让 ChatGPT 只读访问你的本地项目文件。</p>
 
-当前下载的 0.2.1 设置中需要填写组织 ID；本分支的设置页教程和组织 ID 选填功能尚未发布新的安装包。
+<p align="center">
+  <a href="https://github.com/sc61561/Project-MCP/releases/tag/v0.2.1"><strong>⬇️ 下载 macOS 版 0.2.1</strong></a>
+  &nbsp;·&nbsp;
+  <a href="docs/macos-app.md">macOS 使用说明</a>
+  &nbsp;·&nbsp;
+  <a href="#命令行快速开始">命令行使用</a>
+</p>
 
-用 Python + FastMCP，让 ChatGPT 只读访问一个本地项目文件夹。通过 `PROJECT_ROOT` 选择目录，使用 STDIO 在本地运行，可通过 OpenAI Secure MCP Tunnel 连接 ChatGPT。
+<p align="center">Python 3.10+ · FastMCP 2.x · 本地运行 · 只读</p>
 
-只提供三个工具：列目录、读文本、全文搜索。支持分页，无数据库、Embedding 或 Web UI。
+---
+
+Project MCP 通过 OpenAI Secure MCP Tunnel，将你选择的一个本地项目文件夹连接到 ChatGPT。它提供三个工具：**列出目录、读取文本、搜索内容**，并支持分页。
+
+> [!IMPORTANT]
+> 当前下载的 **0.2.1 是 Apple Silicon / macOS 15+ 预发布测试版**，尚未经过 Apple 公证，设置时需要填写组织 ID。本分支的设置页教程和组织 ID 选填功能尚未发布新的安装包。
+
+| 你想要 | 从这里开始 |
+| --- | --- |
+| 使用 macOS App | [下载 0.2.1](https://github.com/sc61561/Project-MCP/releases/tag/v0.2.1)，查看 [macOS 使用说明](docs/macos-app.md) |
+| 使用 Python 命令行 | [安装并选择项目](#1-安装和选择目标项目) |
+| 了解读取限制 | [工具与分页](#工具与分页) · [只读与安全边界](#只读与安全边界) |
 
 ## macOS 桌面启动器（测试版）
 
@@ -16,11 +35,17 @@
 
 首版目标为 Apple Silicon / macOS 15+。窗口关闭崩溃与 supervisor 停止死锁已修复；一体式窗口拖动已在 macOS 27.2 由用户实际验证。Apple 签名公证、公开分发的 runtime 来源复核和无 Python 新机器验收仍是正式发布前的门槛。现有 CLI 用法继续有效。
 
-打开 App 的设置，按默认展开的 **快速开始** 获取连接信息、配置并启动，然后在 ChatGPT 添加插件。以下是添加插件的实际操作演示：
+**使用已发布的 0.2.1：**
+
+1. 获取 OpenAI API Key，创建 Tunnel，并准备 Tunnel ID 和组织 ID。
+2. 在 App 的设置中填写连接信息，选择项目文件夹并启动。
+3. 在 ChatGPT 中添加自定义 MCP 插件，选择相同的 Tunnel，再调用工具验证。
+
+本分支的新版本将三步指引放在设置页的 **快速开始** 中。以下是添加插件的操作演示：
 
 ![添加 ChatGPT 插件操作演示](assets/chatgpt-plugin-guide.gif)
 
-## 快速开始
+## 命令行快速开始
 
 需要 Python 3.10+。以下终端示例适用于 macOS / Linux 的 zsh 或 bash。
 
