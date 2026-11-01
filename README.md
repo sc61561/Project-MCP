@@ -25,7 +25,9 @@
 
 ---
 
-Project MCP 通过 OpenAI Secure MCP Tunnel，将你选择的一个本地项目文件夹连接到 ChatGPT。它提供三个工具：**列出目录、读取文本、搜索内容**，并支持分页。
+习惯使用 Codex 的 Quick Chat 时，我们可以先让 ChatGPT 了解项目、讨论方案，再交给 Codex 实施。当原有 Quick Chat 不再可用时，如何继续让 ChatGPT 看懂本地项目，成为这套工作流的一个难题。
+
+Project MCP 提供了一条替代路径：将你选择的本地项目文件夹封装为只读 MCP 接口，通过 OpenAI Secure MCP Tunnel 接入 ChatGPT。连接插件后，ChatGPT 可以列出目录、读取文本和搜索内容，结合项目实际情况讨论需求、制定计划；你再把计划交给 Codex 实施。这样可以把部分讨论和规划放在 ChatGPT 中完成，帮助减少 Codex 的用量；实际节省多少取决于使用方式。
 
 > [!IMPORTANT]
 > 当前下载的 **0.2.1 是 Apple Silicon / macOS 15+ 预发布测试版**。
