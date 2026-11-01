@@ -9,7 +9,7 @@
 <p align="center">
   <a href="https://github.com/sc61561/Project-MCP/releases/tag/v0.2.1"><strong>⬇️ 下载 macOS 版 0.2.1</strong></a>
   &nbsp;·&nbsp;
-  <a href="docs/macos-app.md">macOS 使用说明</a>
+  <a href="docs/macos-quick-start.md"><strong>📖 macOS 快速开始</strong></a>
   &nbsp;·&nbsp;
   <a href="#命令行快速开始">命令行使用</a>
 </p>
@@ -28,35 +28,23 @@
 Project MCP 通过 OpenAI Secure MCP Tunnel，将你选择的一个本地项目文件夹连接到 ChatGPT。它提供三个工具：**列出目录、读取文本、搜索内容**，并支持分页。
 
 > [!IMPORTANT]
-> 当前下载的 **0.2.1 是 Apple Silicon / macOS 15+ 预发布测试版**。如果首次打开时提示无法验证开发者，请打开 **系统设置 → 隐私与安全性**，在“安全性”区域找到该 App 并点击 **仍要打开**，再按提示输入 Mac 登录密码并确认。“仍要打开”通常在尝试打开后的一小时内显示。[Apple 官方说明](https://support.apple.com/zh-cn/102445)
+> 当前下载的 **0.2.1 是 Apple Silicon / macOS 15+ 预发布测试版**。
 
 | 你想要 | 从这里开始 |
 | --- | --- |
-| 使用 macOS App | [下载 0.2.1](https://github.com/sc61561/Project-MCP/releases/tag/v0.2.1)，查看 [macOS 使用说明](docs/macos-app.md) |
+| 使用 macOS App | [下载 0.2.1](https://github.com/sc61561/Project-MCP/releases/tag/v0.2.1)，查看 [macOS 快速开始](docs/macos-quick-start.md) |
 | 使用 Python 命令行 | [安装并选择项目](#1-安装和选择目标项目) |
 | 了解读取限制 | [工具与分页](#工具与分页) · [只读与安全边界](#只读与安全边界) |
 
-## macOS 桌面启动器（测试版）
+## macOS App
 
 原生毛玻璃极简窗口：选择项目、查看状态、一键启动/停止；连接配置和诊断收进设置。macOS 26 及以上使用系统原生 Liquid Glass（已在 macOS 27.2 实机核对），macOS 15 保持原有毛玻璃样式。应用内置 Python 和 Tunnel，使用方式及构建步骤见 [macOS 软件说明](docs/macos-app.md)。
 
 首版目标为 Apple Silicon / macOS 15+。窗口关闭崩溃与 supervisor 停止死锁已修复；一体式窗口拖动已在 macOS 27.2 由用户实际验证。Apple 签名公证、公开分发的 runtime 来源复核和无 Python 新机器验收仍是正式发布前的门槛。现有 CLI 用法继续有效。
 
-**使用已发布的 0.2.1：**
+### 快速开始
 
-1. 获取 OpenAI API Key，创建 Tunnel，并准备 Tunnel ID 和组织 ID。
-2. 在 App 的设置中填写连接信息，选择项目文件夹并启动。
-3. 在 ChatGPT 中添加自定义 MCP 插件，选择相同的 Tunnel，再调用工具验证。
-
-本分支的新版本将三步指引放在设置页的 **快速开始** 中。以下是实际操作演示：
-
-**创建 API Key**：在 API Keys 页面点击 `Create new secret key`，按需选择有效期和权限。为保护密钥，视频截去了创建后的密钥显示画面。
-
-![创建 API Key 操作演示](assets/api-key-guide.gif)
-
-**添加 ChatGPT 插件：**
-
-![添加 ChatGPT 插件操作演示](assets/chatgpt-plugin-guide.gif)
+下载并打开 App，配置连接信息，然后在 ChatGPT 中添加插件。图文步骤与操作演示见 **[macOS App 快速开始教程](docs/macos-quick-start.md)**。
 
 ## 命令行快速开始
 
