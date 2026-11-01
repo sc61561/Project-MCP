@@ -4,7 +4,7 @@
 
 <h1 align="center">Project MCP</h1>
 
-<p align="center">让 ChatGPT 只读访问你的本地项目文件。</p>
+<p align="center">让 ChatGPT 访问你的本地项目文件，为你的codex省下一大笔额度。</p>
 
 <p align="center">
   <a href="https://github.com/sc61561/Project-MCP/releases/tag/v0.2.1"><strong>⬇️ 下载 macOS 版 0.2.1</strong></a>
